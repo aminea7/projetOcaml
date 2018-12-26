@@ -49,18 +49,8 @@ let rec map_aux f = function
 
 let rec map gr f   = List.map (fun (id,out) -> (id, map_aux f out)) gr
 
-    (* Verif flot d'un node : Si flot<capa *)
-
-let verif_flot y = match y with
-  |(flot,capa)-> if flot<capa then true else false
-  |(_,_)->false
-
-
-    (* Verif si Node y si non marqué, donc non présent dans une liste M *)
-
-let rec verif_list list y = match list with
-    |h::rest -> if h=y then true else verif_list rest y
-    |[] -> false
+    (* Ajouter un elm à la fin de la file *)
+let add_elm lst a = lst @ [a]
 
 
     (*Recherche Prédecesseurs *)
@@ -82,20 +72,33 @@ let rec r_succ x = function
   |[]->[]
 
 
+    (* Verif flot d'un node : Si flot<capa *)
 
-(* Ajouter un elm à la fin de la file *)
-let add_elm lst a = lst @ [a]
+let verif_flot y = match y with
+  |(flot,capa)-> if flot<capa then true else false
+  |(_,_)->false
 
-(* Recherche de Successeurs et Predesseurs non marqué et avec un flot modifiable *)
+    (* Verif si Node y si non marqué, donc non présent dans une liste M *)
+
+let rec verif_list list y = match list with
+    |h::rest -> if h=y then true else verif_list rest y
+    |[] -> false
+
+    (* Verif si Node y si non marqué + flot ok *)
+let rec verif list y =  if (verif_list list y)&&(verif_flot y) then true else false
 
 
-(* iterations *)
-let rec iterZ = function
-  |x::rest -> []
+    (* Recherche de Successeurs et Predesseurs non marqué et avec un flot modifiable *)
+
+
+
+    (* iterations *)
+let rec iterZ fileZ marqueZ gr= match fileZ with
+  |x::rest -> List.map (fun marqueZ x -> (if (verif marqueZ x) then (add_elm fileZ x ;add_elm marqueZ x) else failwith "zbi" );iterZ rest) (r_succ x gr)
   |[]->[]
 
 let chemin gr source sink = let rec rech gr source sink fileZ marqueZ =
 add_elm fileZ source ;
 add_elm marqueZ source ;
-iterZ fileZ ;
-in rech gr source sink []
+iterZ fileZ marqueZ gr ;
+in rech gr source sink [] []
