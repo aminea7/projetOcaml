@@ -81,20 +81,20 @@ let verif_flot y = match y with
     (* Verif si Node y si non marqué, donc non présent dans une liste M *)
 
 let rec verif_list list y = match list with
-    |h::rest -> if h=y then true else verif_list rest y
-    |[] -> false
+    |h::rest -> if h=y then false else verif_list rest y
+    |[] -> true
 
     (* Verif si Node y si non marqué + flot ok *)
-let rec verif list y =  if (verif_list list y)&&(verif_flot y) then true else false
+let rec verif list (x,y) =  if (verif_list list x)&&(verif_flot y) then true else false
 
 
     (* Recherche de Successeurs et Predesseurs non marqué et avec un flot modifiable *)
 
 
 
-    (* iterations *)
+  (* iterations *)
 let rec iterZ fileZ marqueZ gr= match fileZ with
-  |x::rest -> List.map (fun marqueZ x -> (if (verif marqueZ x) then (add_elm fileZ x ;add_elm marqueZ x) else failwith "zbi" );iterZ rest) (r_succ x gr)
+  |x::rest -> List.iter (fun y -> (if (verif marqueZ y) then (add_elm marqueZ y ; add_elm fileZ y) else iterZ rest marqueZ gr)) (r_succ x gr)
   |[]->[]
 
 let chemin gr source sink = let rec rech gr source sink fileZ marqueZ =
