@@ -49,11 +49,38 @@ let rec map_aux f = function
 
 let rec map gr f   = List.map (fun (id,out) -> (id, map_aux f out)) gr
 
-    (* Ajouter un elm à la fin de la file *)
+
+let append l1 l2 =
+  let rec loop acc l1 l2 =
+    match l1, l2 with
+    | [], [] -> List.rev acc
+    | [], h :: t -> loop (h :: acc) [] t
+    | h :: t, l -> loop (h :: acc) t l
+    in
+    loop [] l1 l2
+
+
+        (* Ajouter un elm à la fin de la file *)
 let add_elm lst a = lst @ [a]
 
+        (* Verif flot d'un arc : Si flot<capa *)
 
-    (*Recherche Prédecesseurs *)
+let verif_flot y = match y with
+|(flot,capa)-> if (int_of_string flot)<(int_of_string capa) then true else false
+
+        (* Verif flot d'un arc : Si flot>0 *)
+
+let verif_flot_pos y = match y with
+|(flot,capa)-> if (int_of_string flot)>0 then true else false
+
+        (* Verif si Node y si non marqué, donc non présent dans une liste M *)
+
+let rec verif_list list y = match list with
+|h::rest -> if h=y then false else verif_list rest y
+|[] -> true
+
+
+        (*Recherche Prédecesseurs sans prendre en compte le flot *)
 
 let rec rpa x idp = function
   |(ids,outs)::rest -> if ids=x then  idp  else  (rpa x idp rest)
@@ -61,7 +88,16 @@ let rec rpa x idp = function
 
 let r_pred x gr = List.map (fun (idp,out) -> rpa x  idp out) gr
 
-    (*Recherche Succésseurs *)
+        (*Recherche Prédecesseurs en vérifiant le flot*)
+
+let rec rpaf x idp = function
+|(ids,outs)::rest -> if (ids=x)&&(verif_flot_pos outs) then idp  else (rpaf x idp rest)
+|[]->""
+
+let r_pred_flot x gr = List.map (fun (idp,out) -> rpaf x idp out) gr
+
+
+        (*Recherche Succésseurs sans prendre en compte le flot*)
 
 let rec rsa acu = function
   |(ids,outs)::rest -> rsa (ids::acu) rest
@@ -71,31 +107,27 @@ let rec r_succ x = function
   |(idp,out)::rest -> if (idp=x) then rsa [] out else r_succ x rest
   |[]->[]
 
+        (*Recherche Succésseurs en vérifiant le flot *)
 
-    (* Verif flot d'un node : Si flot<capa *)
+let rec rsaf acu = function
+    |(ids,outs)::rest -> if (verif_flot outs) then (rsaf (ids::acu) rest) else (rsaf acu rest)
+    |[]-> acu
 
-let verif_flot y = match y with
-  |(flot,capa)-> if flot<capa then true else false
-  |(_,_)->false
+let rec r_succ_flot x = function
+    |(idp,out)::rest -> if (idp=x) then rsaf [] out else r_succ_flot x rest
+    |[]->[]
 
-    (* Verif si Node y si non marqué, donc non présent dans une liste M *)
+        (* Itérateurs sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
 
-let rec verif_list list y = match list with
-    |h::rest -> if h=y then true else verif_list rest y
-    |[] -> false
+let verif listeSucPred fileZ marqueZ x = List.map  (fun x fileZ marqueZ -> if (verif_list marqueZ x) then (add_elm marqueZ x ; add_elm fileZ x) else failwith "zbi") listeSucPred
 
-    (* Verif si Node y si non marqué + flot ok *)
-let rec verif list y =  if (verif_list list y)&&(verif_flot y) then true else false
+        (* Recherche de Successeurs et Predesseurs non marqué et avec un flot modifiable *)
 
+        (* Iterations sur la fileZ *)
 
-    (* Recherche de Successeurs et Predesseurs non marqué et avec un flot modifiable *)
+let iterZ fileZ marqueZ gr= List.map (fun listeSucPred fileZ marqueZ x -> verif ((append (r_succ_flot x gr) )(r_pred_flot x gr)) fileZ marqueZ x) fileZ
 
-
-
-    (* iterations *)
-let rec iterZ fileZ marqueZ gr= match fileZ with
-  |x::rest -> List.map (fun marqueZ x -> (if (verif marqueZ x) then (add_elm fileZ x ;add_elm marqueZ x) else failwith "zbi" );iterZ rest) (r_succ x gr)
-  |[]->[]
+        (* Algo: Recherche chemin *)
 
 let chemin gr source sink = let rec rech gr source sink fileZ marqueZ =
 add_elm fileZ source ;
