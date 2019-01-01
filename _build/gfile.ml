@@ -2,6 +2,7 @@ open Printf
 open Graph
 
 type path = string
+type arc = string*string
 
 (* Format of text files: lines of the form
  *
@@ -12,11 +13,11 @@ type path = string
 
 let get_flot s = match s with
     |(f,c)->f
-    |(_,_)->failwith "Error get_flot"
+    |_->failwith "Error get_flot"
 
 let get_capa s = match s with
         |(f,c)->c
-        |(_,_)->failwith "Error get_capa"
+        |_->failwith "Error get_capa" 
 
 let write_file path graph =
 

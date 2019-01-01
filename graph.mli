@@ -5,6 +5,7 @@ type 'a graph
 (* Each node has a unique identifier (a name). *)
 type id = string
 
+
 exception Graph_error of string
 
 
@@ -56,6 +57,16 @@ val v_fold: 'a graph -> ('b -> id -> 'a out_arcs -> 'b) -> 'b -> 'b
  * Nodes keep the same identifiers. *)
 val map: 'a graph -> ('a -> 'b) -> 'b graph
 
+
+
+(* vérifications *)
+val add_elm: id list -> id -> id list
+val verif_flot: (string*string) -> bool
+val verif_flot_pos: (string*string) -> bool
+val verif_list: id list -> id -> bool
+
+
+
     (* Recherche de Succésseurs/Prédecesseurs, sans et avec prise en compte du flot *)
 val r_pred: id-> 'a graph ->  id list
 val r_succ: id-> 'a graph ->  id list
@@ -63,9 +74,9 @@ val r_pred_flot: id-> (string*string) graph ->  id list
 val r_succ_flot: id-> (string*string) graph ->  id list
 
     (* Itérateur sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
-val verif: id list -> id list -> id list -> id -> id list
+val verif: id list -> id list -> id list -> id list * id list
 
     (* Itérateur sur les noeuds de la file  *)
-val iterZ: id list -> id list -> 'a graph -> id list
+val iterZ: id list -> id list -> (string*string) graph -> id -> id list
 
 (*list.iter => Afficher sans write*)

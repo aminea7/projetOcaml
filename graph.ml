@@ -59,9 +59,21 @@ let append l1 l2 =
     in
     loop [] l1 l2
 
+        (* Enlever un elm à la file *)
+let rec remove_elm x = function
+    |elm::rest -> if elm=x then rest else elm::(remove_elm x rest)
+    |[]->[]
 
         (* Ajouter un elm à la fin de la file *)
 let add_elm lst a = lst @ [a]
+
+        (* Récupérer la 1ère liste ou la 2e liste renvoyée par iterZ : fileZ et marqueZ*)
+let getFileZ res = match res with
+    |(fileZ,marqueZ) -> fileZ
+    |_-> failwith "Error getFileZ"
+let getMarqueZ res = match res with
+    |(fileZ,marqueZ) -> marqueZ
+    |_ -> failwith "Error getMarqueZ"
 
         (* Verif flot d'un arc : Si flot<capa *)
 
@@ -79,6 +91,11 @@ let rec verif_list list y = match list with
 |h::rest -> if h=y then false else verif_list rest y
 |[] -> true
 
+        (* Verif si Node existe dans une liste <==> 1 des 2 Condition d'arret de la recherche de chemins *)
+
+let rec exists_elm list x = match list with
+    |h::rest -> if h=x then true else exists_elm rest x
+    |[] -> false
 
         (*Recherche Prédecesseurs sans prendre en compte le flot *)
 
@@ -117,20 +134,26 @@ let rec r_succ_flot x = function
     |(idp,out)::rest -> if (idp=x) then rsaf [] out else r_succ_flot x rest
     |[]->[]
 
-        (* Itérateurs sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
+        (* Itérateurs sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node x si non marqué + flot ok *)
 
-let verif listeSucPred fileZ marqueZ x = List.map  (fun x fileZ marqueZ -> if (verif_list marqueZ x) then (add_elm marqueZ x ; add_elm fileZ x) else failwith "zbi") listeSucPred
+let rec verif fileZ marqueZ = function
+    |x::rest -> if (verif_list marqueZ x) then (verif (add_elm fileZ x) (add_elm marqueZ x) rest) else verif fileZ marqueZ rest
+    |[] -> (fileZ,marqueZ)
 
-        (* Recherche de Successeurs et Predesseurs non marqué et avec un flot modifiable *)
+        (* Iterations sur la fileZ : on retire le 1er elm et on traite ses Succésseurs et predecesseurs*)
 
-        (* Iterations sur la fileZ *)
+let rec iterZ fileZ marqueZ gr sink = match fileZ with
+    |x::rest -> if (exists_elm fileZ sink) then fileZ else (iterZ (getFileZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr)))) (getMarqueZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))  gr sink)
+    |[]-> marqueZ
 
-let iterZ fileZ marqueZ gr= List.map (fun listeSucPred fileZ marqueZ x -> verif ((append (r_succ_flot x gr) )(r_pred_flot x gr)) fileZ marqueZ x) fileZ
+        (*Reconstitution du chemin à partir d'une liste de Node marqués *)
+
+let rec reconstitution = function
+    |x::rest ->
+    |[] -> failwith "Error reconstitution"
 
         (* Algo: Recherche chemin *)
 
 let chemin gr source sink = let rec rech gr source sink fileZ marqueZ =
-add_elm fileZ source ;
-add_elm marqueZ source ;
-iterZ fileZ marqueZ gr ;
+iterZ [source] [source] gr ;
 in rech gr source sink [] []

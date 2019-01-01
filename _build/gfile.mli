@@ -4,6 +4,7 @@
 open Graph
 
 type path = string
+type arc = string*string
 
 (* Values are read as strings. *)
 val from_file: path -> string graph
