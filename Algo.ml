@@ -10,6 +10,7 @@ let first_elm list = match list with
     |h::rest -> h
     |[]-> failwith "File vide" ;;
 
+
         //Recuperer elm suivant (file) + Condition de file vide
 let rec next_elm list x = match list with
     |h1::rest -> if h1=x then first_elm rest else (next_elm rest x)

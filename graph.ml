@@ -50,6 +50,12 @@ let rec map_aux f = function
 let rec map gr f   = List.map (fun (id,out) -> (id, map_aux f out)) gr
 
 
+
+let get_option arc = match arc with
+|Some x -> x
+|_ -> failwith "Error get_option" ;;
+
+
 let append l1 l2 =
   let rec loop acc l1 l2 =
     match l1, l2 with
@@ -75,6 +81,8 @@ let getMarqueZ res = match res with
     |(fileZ,marqueZ) -> marqueZ
     |_ -> failwith "Error getMarqueZ"
 
+
+
         (* Verif flot d'un arc : Si flot<capa *)
 
 let verif_flot y = match y with
@@ -97,12 +105,22 @@ let rec exists_elm list x = match list with
     |h::rest -> if h=x then true else exists_elm rest x
     |[] -> false
 
+        (* Recuperer 1er elm *)
+let first_elm list = match list with
+    |h::rest -> h
+    |[]-> failwith "File vide" 
+
+    (* Recuperer elm suivant (file) *)
+let rec next_elm list x = match list with
+|h1::rest -> if h1=x then first_elm rest else (next_elm rest x)
+|h1::[]-> "Fin de la liste [next_elm]"
+|[] -> failwith "Error next_elm";;
+
         (*Recherche Prédecesseurs sans prendre en compte le flot *)
 
 let rec rpa x idp = function
   |(ids,outs)::rest -> if ids=x then  idp  else  (rpa x idp rest)
   |[]->""
-
 let r_pred x gr = List.map (fun (idp,out) -> rpa x  idp out) gr
 
         (*Recherche Prédecesseurs en vérifiant le flot*)
@@ -110,16 +128,13 @@ let r_pred x gr = List.map (fun (idp,out) -> rpa x  idp out) gr
 let rec rpaf x idp = function
 |(ids,outs)::rest -> if (ids=x)&&(verif_flot_pos outs) then idp  else (rpaf x idp rest)
 |[]->""
-
 let r_pred_flot x gr = List.map (fun (idp,out) -> rpaf x idp out) gr
-
 
         (*Recherche Succésseurs sans prendre en compte le flot*)
 
 let rec rsa acu = function
   |(ids,outs)::rest -> rsa (ids::acu) rest
   |[]-> acu
-
 let rec r_succ x = function
   |(idp,out)::rest -> if (idp=x) then rsa [] out else r_succ x rest
   |[]->[]
@@ -129,31 +144,44 @@ let rec r_succ x = function
 let rec rsaf acu = function
     |(ids,outs)::rest -> if (verif_flot outs) then (rsaf (ids::acu) rest) else (rsaf acu rest)
     |[]-> acu
-
 let rec r_succ_flot x = function
     |(idp,out)::rest -> if (idp=x) then rsaf [] out else r_succ_flot x rest
     |[]->[]
 
+        (* Recherche d'un predecesseur d'un node dans la fileZ pour reconstituer une chaine *)
+
+let rec predecesseur gr x =  function
+    |y::rest -> if  (find_arc gr y x) != None then y else predecesseur gr x rest
+    |[] -> failwith "Error predecesseur"
+
         (* Itérateurs sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node x si non marqué + flot ok *)
 
 let rec verif fileZ marqueZ = function
-    |x::rest -> if (verif_list marqueZ x) then (verif (add_elm fileZ x) (add_elm marqueZ x) rest) else verif fileZ marqueZ rest
+    |x::rest -> if (verif_list marqueZ x) then (verif (add_elm fileZ x) (x::marqueZ) rest) else verif fileZ marqueZ rest
     |[] -> (fileZ,marqueZ)
 
         (* Iterations sur la fileZ : on retire le 1er elm et on traite ses Succésseurs et predecesseurs*)
 
 let rec iterZ fileZ marqueZ gr sink = match fileZ with
-    |x::rest -> if (exists_elm fileZ sink) then fileZ else (iterZ (getFileZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr)))) (getMarqueZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))  gr sink)
-    |[]-> marqueZ
+    |x::rest -> if (exists_elm fileZ sink) then marqueZ else (iterZ (getFileZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr)))) (getMarqueZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))  gr sink)
+    |[]-> failwith "Pas de chemin trouvé [Error iterZ]"
 
         (*Reconstitution du chemin à partir d'une liste de Node marqués *)
+(*ATTENTION : Il faut inverser la list acu l.167*)
 
-let rec reconstitution = function
-    |x::rest ->
-    |[] -> failwith "Error reconstitution"
+(*let rec reconstitution source acu list gr marqueZ = match list with
+    |[x] -> reconstitution source ((predecesseur gr x rest)::acu) gr (predecesseur gr x rest)
+    |x::rest -> reconstitution source ((predecesseur gr x rest)::acu) gr rest
+    |[] -> if (first_elm acu)=source then acu else failwith "Error reconstitution"
+*)
+
+let rec reconstitution source acu gr marqueZ = if (first_elm acu)=source then acu else (reconstitution source ((predecesseur gr (first_elm acu) marqueZ)::acu) gr marqueZ)
+
 
         (* Algo: Recherche chemin *)
 
-let chemin gr source sink = let rec rech gr source sink fileZ marqueZ =
-iterZ [source] [source] gr ;
+let chemin gr source sink list_marque = let rec rech gr source sink fileZ marqueZ =
+    list_marque=(iterZ [source] [source] gr sink) ;
+    reconstitution source [sink] gr list_marque
+
 in rech gr source sink [] []

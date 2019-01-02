@@ -23,9 +23,11 @@ let () =
   (*let graph = Graph.map graph (fun chaine -> "0/"^chaine)   in*)
   let graph = Graph.map graph (fun chaine -> ("0",chaine))   in
 
-  let pred3 = Graph.r_pred "3" graph  in
+  (*let pred3 = Graph.r_pred "3" graph  in *)
+
+  let test1 = Graph.chemin graph _source _sink [] in
 
   (* Rewrite the graph that has been read. *)
-  let () = Gfile.write_file outfile graph in
+  let () = Gfile.write_file_chemin outfile test1 graph in
 
   ()
