@@ -185,3 +185,90 @@ let chemin gr source sink list_marque = let rec rech gr source sink fileZ marque
     reconstitution source [sink] gr list_marque
 
 in rech gr source sink [] []
+
+
+(* initialiser le flot à 0 pour tous les arcs *)
+
+let rec flot_init_aux = function
+  |[]-> failwith "sink !" 
+  |(ids,(f,c))::rest -> (ids,("0",c)) :: flot_init_aux rest  
+
+let rec flot_init = function 
+  |[]-> [] 
+  |(idp,out)::rest -> (idp,flot_init_aux out) :: flot_init rest 
+
+(* recuperer flot succ *) 
+
+let rec recup_flot_succ_aux id2 = function 
+  |[]->""
+  |(ids,(f,c))::rest -> if (ids=id2) then string_of_int(int_of_string c-int_of_string f) else recup_flot_succ_aux id2 rest
+
+let rec recup_flot_succ id1 id2 = function
+  |[] -> ""
+  |(idp,out)::rest -> if (idp=id1) then recup_flot_succ_aux id2 out else recup_flot_succ id1 id2 rest
+
+(* recuperer flot pred *) 
+
+let rec recup_flot_pred_aux id2 = function 
+  |[]->""
+  |(ids,(f,c))::rest -> if (ids=id2) then f else recup_flot_pred_aux id2 rest
+
+let rec recup_flot_pred id1 id2 = function
+  |[] -> ""
+  |(idp,out)::rest -> if (idp=id1) then recup_flot_pred_aux id2 out else recup_flot_pred id1 id2 rest 
+
+(* liste des augmentations possibles *)
+
+let liste_aug_flots gr chaine =
+  let rec loop gr acu = function
+    |[]->[] 
+    |id::[]-> acu 
+    |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then loop gr ((recup_flot_succ id (next_elm chaine id) gr)::acu) rest else loop gr ((recup_flot_pred (next_elm chaine id) id gr)::acu) rest 
+  in 
+  loop gr [] chaine
+
+(* calcul de flot min *)
+let min x y = if (int_of_string x) < (int_of_string y) then x else y 
+
+let min_flot = function 
+|x::rest -> List.fold_left min x rest 
+|[]-> failwith "liste vide" 
+
+(*----- mettre à jour le graphe -----*)
+ 
+(* augmentation flot succ *) 
+
+let rec aug_flot_succ_aux id2 min = function 
+  |[]->[]
+  |(ids,(f,c))::rest -> if (ids=id2) then (ids,(string_of_int(int_of_string f + int_of_string min),c))::rest else (ids,(f,c))::aug_flot_succ_aux id2 min rest
+
+let rec aug_flot_succ id1 id2 min = function
+  |[] -> []
+  |(idp,out)::rest -> if (idp=id1) then (idp,aug_flot_succ_aux id2 out min)::rest else (idp,out)::aug_flot_succ id1 id2 min rest
+
+(* diminution flot pred *) 
+
+let rec dim_flot_pred_aux id2 min = function 
+  |[]->[]
+  |(ids,(f,c))::rest -> if (ids=id2) then (ids,(string_of_int(int_of_string f - int_of_string min),c))::rest else (ids,(f,c))::dim_flot_pred_aux id2 min rest
+
+let rec dim_flot_pred id1 id2 min = function
+  |[] -> []
+  |(idp,out)::rest -> if (idp=id1) then (idp,dim_flot_pred_aux id2 out min)::rest else (idp,out)::dim_flot_pred id1 id2 min rest
+
+(******)
+
+let rec mise_a_jour_gr gr = function 
+  |[]->[]
+  |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then (aug_flot_succ id (next_elm chaine id) min gr) else (dim_flot_pred (next_elm chaine id) id min gr) 
+
+(*------------*)
+
+
+
+
+
+
+
+
+
