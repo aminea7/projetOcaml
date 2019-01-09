@@ -55,6 +55,13 @@ let get_option arc = match arc with
 |Some x -> x
 |_ -> failwith "Error get_option" ;;
 
+       (*2 Get pour récupérer les 2 résultats de la ft prédecesseur *)
+let get_nvlist res = match res with
+  |(next_elm,nv_list) -> nv_list
+  |_-> failwith "Error get_nvlist"
+let get_pred res = match res with
+  |(next_elm,nv_list) -> next_elm
+  |_-> failwith "Error get_pred"
 
 let append l1 l2 =
   let rec loop acc l1 l2 =
@@ -73,7 +80,7 @@ let rec remove_elm x = function
         (* Ajouter un elm à la fin de la file *)
 let add_elm lst a = lst @ [a]
 
-        (* Récupérer la 1ère liste ou la 2e liste renvoyée par iterZ : fileZ et marqueZ*)
+        (* Récupérer la 1ère liste ou la 2e liste renvoyée par la ft iter_file : fileZ et marqueZ*)
 let getFileZ res = match res with
     |(fileZ,marqueZ) -> fileZ
     |_-> failwith "Error getFileZ"
@@ -95,8 +102,8 @@ let verif_flot_pos y = match y with
 
         (* Verif si Node y si non marqué, donc non présent dans une liste M *)
 
-let rec verif_list list y = match list with
-|h::rest -> if h=y then false else verif_list rest y
+let rec not_appartient_list list y = match list with
+|h::rest -> if h=y then false else not_appartient_list rest y
 |[] -> true
 
         (* Verif si Node existe dans une liste <==> 1 des 2 Condition d'arret de la recherche de chemins *)
@@ -146,33 +153,36 @@ let rec rsaf acu = function
     |[]-> acu
 let rec r_succ_flot x = function
     |(idp,out)::rest -> if (idp=x) then rsaf [] out else r_succ_flot x rest
-    |[]->[]
+    |[]->failwith "Pas de Succésseurs"
 
         (* Itérateurs sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node x si non marqué *)
 
-let rec verif fileZ marqueZ = function
-    |x::rest -> if (verif_list marqueZ x) then (verif (add_elm fileZ x) (x::marqueZ) rest) else verif fileZ marqueZ rest
+let rec verif_succ fileZ marqueZ = function  (*OK*)
+    |x::rest -> if (not_appartient_list marqueZ x) then (verif_succ (add_elm fileZ x) (x::marqueZ) rest) else verif_succ fileZ marqueZ rest
     |[] -> (fileZ,marqueZ)
 
 
-        (* Recherche d'un predecesseur d'un node dans la fileZ pour reconstituer une chaine *)
+        (* Recherche d'un predecesseur d'un node dans la liste des noeuds marqués pour reconstituer une chaine *)
 
-let rec predecesseur gr x =  function
-    (*|y::rest -> if  (find_arc gr y x) != None then y else ((if  (find_arc gr x y) != None then y else predecesseur gr x rest)) *)
-    |y::rest -> if  (find_arc gr y x) != None then y else (predecesseur gr x rest)
+let rec predecesseur gr x chemin_en_cours=  function   (*OKK*)
+    (*|y::rest -> if  ((find_arc gr y x) != None) && (not_appartient_list chemin_en_cours y) then y else ((if  (find_arc gr x y) != None then y else predecesseur gr x rest)) *)
+    |y::rest -> if  ((find_arc gr y x) != None) && (not_appartient_list chemin_en_cours y)
+                        then (y,rest)
+                         else (predecesseur gr x chemin_en_cours rest)
 
     |[] -> failwith "Error predecesseur"
 
 
         (* Iterations sur la fileZ : on retire le 1er elm et on traite ses Succésseurs et predecesseurs avec un appel à la ft verif pr chacun *)
 
-let rec iter_file fileZ marqueZ gr sink = match fileZ with
+let rec iter_file fileZ marqueZ gr sink = match fileZ with (*ok*)
 |x::rest -> if (exists_elm marqueZ sink) then marqueZ
 (*                                        else (iter_file (getFileZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
                                                         (getMarqueZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
-                                                        gr sink)*)
-                                        else (iter_file (getFileZ (verif (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
-                                                        (getMarqueZ (verif (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
+                                                        gr sink)
+*)
+                                        else (iter_file (getFileZ   (verif_succ (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
+                                                        (getMarqueZ (verif_succ (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
                                                         gr sink)
 
 |[]-> failwith "Pas de chemin trouvé [Error iter_file]"
@@ -180,15 +190,17 @@ let rec iter_file fileZ marqueZ gr sink = match fileZ with
 
     (*Reconstitution du chemin à partir d'une liste de Node marqués *)
 
-let rec reconstitution source acu gr marqueZ =
+let rec reconstitution source acu gr marqueZ = (*OK*)
         if (first_elm acu)=source then acu
-         else (reconstitution source ((predecesseur gr (first_elm acu) marqueZ)::acu) gr marqueZ)
+         else (reconstitution source ((get_pred (predecesseur gr (first_elm acu) acu marqueZ))::acu)
+                              gr marqueZ )
 
 
         (* Algo: Recherche chemin *)
 
 let chemin gr source sink list_marque = let rec rech gr source sink fileZ marqueZ =
-    reconstitution source [sink] gr (iter_file [source] [source] gr sink) ;
+    list_marque= iter_file [source] [source] gr sink ;
+    reconstitution source [sink] gr list_marque ;
 
 in rech gr source sink [] []
 

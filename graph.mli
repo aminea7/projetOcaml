@@ -62,7 +62,7 @@ val map: 'a graph -> ('a -> 'b) -> 'b graph
 val add_elm: id list -> id -> id list
 val verif_flot: (string*string) -> bool
 val verif_flot_pos: (string*string) -> bool
-val verif_list: id list -> id -> bool
+val not_appartient_list: id list -> id -> bool
 val exists_elm: id list -> id -> bool
 val first_elm: id list -> id
 
@@ -73,11 +73,11 @@ val r_succ: id-> 'a graph ->  id list
 val r_pred_flot: id-> (string*string) graph ->  id list
 val r_succ_flot: id-> (string*string) graph ->  id list
 
-val predecesseur: (string*string) graph -> id -> id list -> id
+val predecesseur: (string*string) graph -> id -> id list -> id list -> (id*(id list))
 
 
     (* Itérateur sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
-val verif: id list -> id list -> id list -> id list * id list
+val verif_succ: id list -> id list -> id list -> id list * id list
 
     (* Itérateur sur les noeuds de la file  *)
 val iter_file: id list -> id list -> (string*string) graph -> id -> id list
