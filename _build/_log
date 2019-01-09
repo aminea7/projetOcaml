@@ -12,22 +12,15 @@
 # Target: ftest.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ftest.cmo, file:ftest.ml, implem, ocaml, quiet }
 /usr/bin/ocamlc -c -o ftest.cmo ftest.ml # cached
 # Target: gfile.ml.depends, tags: { extension:ml, file:gfile.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep -modules gfile.ml > gfile.ml.depends
+/usr/bin/ocamldep -modules gfile.ml > gfile.ml.depends # cached
 # Target: graph.ml.depends, tags: { extension:ml, file:graph.ml, ocaml, ocamldep, quiet }
 /usr/bin/ocamldep -modules graph.ml > graph.ml.depends # cached
 # Target: graph.cmx, tags: { compile, extension:cmx, extension:ml, file:graph.cmx, file:graph.ml, implem, native, ocaml, quiet }
 /usr/bin/ocamlopt -c -o graph.cmx graph.ml # cached
 # Target: gfile.cmx, tags: { compile, extension:cmx, extension:ml, file:gfile.cmx, file:gfile.ml, implem, native, ocaml, quiet }
-/usr/bin/ocamlopt -c -o gfile.cmx gfile.ml
-+ /usr/bin/ocamlopt -c -o gfile.cmx gfile.ml
-File "gfile.ml", line 20, characters 5-6:
-Warning 11: this match case is unused.
-File "gfile.ml", line 24, characters 9-10:
-Warning 11: this match case is unused.
-File "gfile.ml", line 33, characters 1-7:
-Warning 11: this match case is unused.
+/usr/bin/ocamlopt -c -o gfile.cmx gfile.ml # cached
 # Target: ftest.cmx, tags: { compile, extension:cmx, extension:ml, file:ftest.cmx, file:ftest.ml, implem, native, ocaml, quiet }
-/usr/bin/ocamlopt -c -o ftest.cmx ftest.ml
+/usr/bin/ocamlopt -c -o ftest.cmx ftest.ml # cached
 # Target: ftest.native, tags: { dont_link_with, extension:native, file:ftest.native, link, native, ocaml, program, quiet }
-/usr/bin/ocamlopt graph.cmx gfile.cmx ftest.cmx -o ftest.native
+/usr/bin/ocamlopt graph.cmx gfile.cmx ftest.cmx -o ftest.native # cached
 # Compilation successful.

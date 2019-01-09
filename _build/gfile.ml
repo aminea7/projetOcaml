@@ -27,11 +27,16 @@ let first_elm list = match list with
     |h::rest -> h
     |[]-> failwith "File vide"
 
-    (* Recuperer elm suivant (file) *)
+        (* Recuperer elm suivant (file) *)
 let rec next_elm list x = match list with
 |h1::rest -> if h1=x then first_elm rest else (next_elm rest x)
 |h1::[]-> "Fin de la liste [next_elm]"
 |_ -> failwith "Error next_elm"
+
+        (* Enlever un elm à la file *)
+let rec remove_elm x = function
+    |elm::rest -> if elm=x then rest else elm::(remove_elm x rest)
+    |[]->[]
 
 
 let write_file path graph =
@@ -56,7 +61,7 @@ let write_file path graph =
   close_out ff ;
   ()
 
-  let write_file_chemin path chemin gr =
+  let write_file_chemin path chemin gr sink =
 
     (* Open a write-file. *)
     let ff = open_out path in
@@ -70,7 +75,11 @@ let write_file path graph =
 
     (* Write all arcs *)
     (*v_iter graph (fun id out -> List.iter (fun (id2, lbl) -> fprintf ff "e \"%s\" %s %s\n" lbl id id2) out) ;*)
-    List.iter (fun id -> fprintf ff "e \"%s/%s\" %s %s\n" (get_flot (get_option (Graph.find_arc gr id (next_elm ["df"] id)))) (get_capa (get_option (Graph.find_arc gr id (next_elm chemin id)))) id (next_elm chemin id)) chemin ;
+    List.iter (fun id -> fprintf ff "e \"%s/%s\" %s %s\n" (get_flot (get_option (Graph.find_arc gr id (next_elm chemin id))))
+                                                          (get_capa (get_option (Graph.find_arc gr id (next_elm chemin id))))
+                                                          id
+                                                          (next_elm chemin id))
+                                                    (remove_elm sink chemin) ;
 
     fprintf ff "\n=== End of graph ===\n" ;
 

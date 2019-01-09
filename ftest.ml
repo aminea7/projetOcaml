@@ -28,6 +28,6 @@ let () =
   let test1 = Graph.chemin graph _source _sink [] in
 
   (* Rewrite the graph that has been read. *)
-  let () = Gfile.write_file_chemin outfile test1 graph in
+  let () = Gfile.write_file_chemin outfile test1 graph _sink in
 
   ()

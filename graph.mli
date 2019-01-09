@@ -80,7 +80,7 @@ val predecesseur: (string*string) graph -> id -> id list -> id
 val verif: id list -> id list -> id list -> id list * id list
 
     (* Itérateur sur les noeuds de la file  *)
-val iterZ: id list -> id list -> (string*string) graph -> id -> id list
+val iter_file: id list -> id list -> (string*string) graph -> id -> id list
 
 val reconstitution: id -> id list -> (string*string) graph -> id list -> id list
 
@@ -93,7 +93,7 @@ val reconstitution: id -> id list -> (string*string) graph -> id list -> id list
 *)
 
 (*list.iter => Afficher sans write*)
-
+(*
 val flot_init_aux : string->(string*(string*string)) list -> (string*(string*string)) list
 val flot_init : string->string->(string*string) graph -> (string*string) graph
 
@@ -115,3 +115,4 @@ val dim_flot_succ_aux : string->string->(string*(string*string)) list -> (string
 val dim_flot_succ : string->string->string->(string*string) graph -> (string*string) graph
 
 val mise_a_jour_gr : (string*string) graph -> string list -> (string*string) graph
+*)
