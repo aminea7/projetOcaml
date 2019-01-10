@@ -25,7 +25,7 @@ let get_capa s = match s with
 
 let first_elm list = match list with
     |h::rest -> h
-    |[]-> failwith "File vide"
+    |[]-> failwith "Error first_elm : File vide"
 
         (* Recuperer elm suivant (file) *)
 let rec next_elm list x = match list with
@@ -61,7 +61,7 @@ let write_file path graph =
   close_out ff ;
   ()
 
-  let write_file_chemin path chemin gr sink =
+  let write_file_chemin path chemin gr source sink =
 
     (* Open a write-file. *)
     let ff = open_out path in
@@ -75,10 +75,11 @@ let write_file path graph =
 
     (* Write all arcs *)
     (*v_iter graph (fun id out -> List.iter (fun (id2, lbl) -> fprintf ff "e \"%s\" %s %s\n" lbl id id2) out) ;*)
-    List.iter (fun id -> fprintf ff "e \"%s/%s\" %s %s\n" (get_flot (get_option (Graph.find_arc gr id (next_elm chemin id))))
+    List.iter (fun id -> if (id!=sink) then (fprintf ff "e \"%s/%s\" %s %s\n"
+                                                          (get_flot (get_option (Graph.find_arc gr id (next_elm chemin id))))
                                                           (get_capa (get_option (Graph.find_arc gr id (next_elm chemin id))))
                                                           id
-                                                          (next_elm chemin id))
+                                                          (next_elm chemin id)) else (failwith "error"))
                                                     (remove_elm sink chemin) ;
 
     fprintf ff "\n=== End of graph ===\n" ;

@@ -84,13 +84,8 @@ val iter_file: id list -> id list -> (string*string) graph -> id -> id list
 
 val reconstitution: id -> id list -> (string*string) graph -> id list -> id list
 
-(*Normalement : *)
-    val chemin: (string * string) graph -> id -> id -> id list -> id list
+val chemin: (string * string) graph -> id -> id -> id list -> id list -> id list
 
- (*val chemin :
-           (string * (string * (string * string)) list) list ->
-           string -> string -> string list -> string list
-*)
 
 (*list.iter => Afficher sans write*)
 (*

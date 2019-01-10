@@ -18,4 +18,4 @@ val from_file: path -> string graph
  * Use Graph.map if necessary to prepare the input graph. *)
 
 val write_file: path -> (string*string) graph -> unit
-val write_file_chemin: path -> id list -> (string*string) graph -> id -> unit
+val write_file_chemin: path -> id list -> (string*string) graph -> id -> id -> unit
