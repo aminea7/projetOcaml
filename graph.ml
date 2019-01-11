@@ -11,6 +11,7 @@ let empty_graph = []
 
 let node_exists gr id = List.mem_assoc id gr
 
+(*
 let out_arcs gr id =
   try List.assoc id gr
   with Not_found -> raise (Graph_error ("Node " ^ id ^ " does not exist in this graph."))
@@ -19,6 +20,17 @@ let find_arc gr id1 id2 =
   let out = out_arcs gr id1 in
   try Some (List.assoc id2 out)
   with Not_found -> None
+
+*)
+let out_arcs gr id =
+  try List.assoc id gr
+  with Not_found -> []
+
+let find_arc gr id1 id2 =
+  let out = if (out_arcs gr id1)!=[] then (out_arcs gr id1) else [] in
+  try Some (List.assoc id2 out)
+  with Not_found -> None
+
 
 let add_node gr id =
   if node_exists gr id then raise (Graph_error ("Node " ^ id ^ " already exists in the graph."))
@@ -162,30 +174,34 @@ let rec rsaf acu = function
     |[]-> acu
 let rec r_succ_flot x = function
     |(idp,out)::rest -> if (idp=x) then rsaf [] out else r_succ_flot x rest
-    |[]->failwith"Error r_succ_flot : node non existant"
+    (*|[]->failwith"Error r_succ_flot : node non existant"*)
+    |[]->[]
 
 
 
-(****************************************************************************************************)
+
+(*****************************************************************************************************)
 (****************************************************************************************************)
 
 
 
       (***********  Etape4: Recherche d'un predecesseur ou Succésseur d'un node dans la liste des noeuds marqués pour reconstituer une chaine
           Retourne un noeud et la nouvelle liste des elements marqués   ***************)
-(*
-let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
-  |y::rest -> if  ((find_arc gr y x) != None) && (not_appartient_list chemin_en_cours y) then (y,rest)
-                       else (if ((find_arc gr x y) != None) && (not_appartient_list chemin_en_cours y) then (y,rest)
-                                else (pred_succ_marque gr x chemin_en_cours rest))
-  |[] -> failwith "Pas de pred_succ_marque"
- *)
+
 
 let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
   |y::rest -> if  (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None) && (verif_flot (get_option (find_arc gr y x))) then (y,rest)
                        else (pred_succ_marque gr x chemin_en_cours rest)
   |[] -> failwith "Pas de pred_succ_marque"
 
+(*
+let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
+  |y::rest -> if  (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None) && (verif_flot (get_option (find_arc gr y x))) then (y,rest)
+                       else ( if ((not_appartient_list chemin_en_cours y) && ((find_arc gr x y) != None) && (verif_flot_pos (get_option (find_arc gr y x)))) then (y,rest)
+                                else (pred_succ_marque gr x chemin_en_cours rest))
+  |[] -> failwith "Pas de pred_succ_marque"
+
+*)
 
         (************   Etape3 : Reconstitution du chemin à partir d'une liste de Node marqués
         Renvoie une liste des noeuds dont on doit augmenter le flot    ************)
@@ -208,20 +224,25 @@ let rec verif_succ_pred fileZ marqueZ = function  (*OK*)
            A la fin retourne une liste avec tt les noeuds marqués *************)
 
 let rec iter_file fileZ marqueZ gr sink = match fileZ with (*ok*)
+
 |[x]-> if (exists_elm marqueZ sink) then marqueZ
-                                       else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
-                                                       (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
-                                                       gr sink)
+                                        else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                        (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                         gr sink)
 
 |x::_ -> if (exists_elm marqueZ sink) then marqueZ
-                                         else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
-                                                         (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
-                                                       gr sink)
+                                        else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                        (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                         gr sink)
 (*
 |x::_ -> if (exists_elm marqueZ sink) then marqueZ
                                          else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
                                                          (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
-                                                       gr sink)
+                                                          gr sink)
+|[x] -> if (exists_elm marqueZ sink) then marqueZ
+                                       else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
+                                                       (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
+                                                        gr sink)
 *)
 |[]-> []
 
@@ -229,7 +250,9 @@ let rec iter_file fileZ marqueZ gr sink = match fileZ with (*ok*)
 
 let chemin gr source sink fileZ marqueZ =   (*OKKK*)
     (*list_marque= iter_file [source] [source] gr sink ; *)
-    reconstitution source [sink] gr (iter_file [source] [source] gr sink)
+    let list_mark = iter_file [source] [source] gr sink in
+        if list_mark!=[] then (reconstitution source [sink] gr (list_mark))
+                            else []
 
 
 

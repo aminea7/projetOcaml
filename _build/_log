@@ -20,21 +20,21 @@
 # Target: graph.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:graph.cmo, file:graph.ml, implem, ocaml, quiet }
 /usr/bin/ocamlc -c -o graph.cmo graph.ml
 + /usr/bin/ocamlc -c -o graph.cmo graph.ml
-File "graph.ml", line 61, characters 3-4:
+File "graph.ml", line 73, characters 3-4:
 Warning 11: this match case is unused.
-File "graph.ml", line 64, characters 3-4:
+File "graph.ml", line 76, characters 3-4:
 Warning 11: this match case is unused.
-File "graph.ml", line 86, characters 5-6:
+File "graph.ml", line 98, characters 5-6:
 Warning 11: this match case is unused.
-File "graph.ml", line 89, characters 5-6:
+File "graph.ml", line 101, characters 5-6:
 Warning 11: this match case is unused.
-File "graph.ml", line 95, characters 5-6:
+File "graph.ml", line 107, characters 5-6:
 Warning 11: this match case is unused.
-File "graph.ml", line 99, characters 9-10:
+File "graph.ml", line 111, characters 9-10:
 Warning 11: this match case is unused.
-File "graph.ml", line 132, characters 1-7:
+File "graph.ml", line 144, characters 1-7:
 Warning 11: this match case is unused.
-File "graph.ml", line 243, characters 1-7:
+File "graph.ml", line 266, characters 1-7:
 Warning 11: this match case is unused.
 # Target: ftest.byte, tags: { byte, dont_link_with, extension:byte, file:ftest.byte, link, ocaml, program, quiet }
 /usr/bin/ocamlc graph.cmo gfile.cmo ftest.cmo -o ftest.byte
