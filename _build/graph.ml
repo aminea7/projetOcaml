@@ -222,9 +222,9 @@ let chemin gr source sink fileZ marqueZ =   (*OKKK*)
 
 
 
-(*
-(* initialiser le flot à 0 pour tous les arcs *)
 
+(* initialiser le flot à 0 pour tous les arcs *)
+(*
 let rec flot_init_aux = function
   |[]-> failwith "sink !"
   |(ids,(f,c))::rest -> (ids,("0",c)) :: flot_init_aux rest
@@ -232,7 +232,7 @@ let rec flot_init_aux = function
 let rec flot_init = function
   |[]-> []
   |(idp,out)::rest -> (idp,flot_init_aux out) :: flot_init rest
-
+*)
 (* recuperer flot succ *)
 
 let rec recup_flot_succ_aux id2 = function
@@ -271,7 +271,6 @@ let min_flot = function
 |[]-> failwith "liste vide"
 
 (*----- mettre à jour le graphe -----*)
-
 (* augmentation flot succ *)
 
 let rec aug_flot_succ_aux id2 min = function
@@ -280,7 +279,7 @@ let rec aug_flot_succ_aux id2 min = function
 
 let rec aug_flot_succ id1 id2 min = function
   |[] -> []
-  |(idp,out)::rest -> if (idp=id1) then (idp,aug_flot_succ_aux id2 out min)::rest else (idp,out)::aug_flot_succ id1 id2 min rest
+  |(idp,out)::rest -> if (idp=id1) then (idp,aug_flot_succ_aux id2 min out)::rest else (idp,out)::aug_flot_succ id1 id2 min rest
 
 (* diminution flot pred *)
 
@@ -290,16 +289,28 @@ let rec dim_flot_pred_aux id2 min = function
 
 let rec dim_flot_pred id1 id2 min = function
   |[] -> []
-  |(idp,out)::rest -> if (idp=id1) then (idp,dim_flot_pred_aux id2 out min)::rest else (idp,out)::dim_flot_pred id1 id2 min rest
+  |(idp,out)::rest -> if (idp=id1) then (idp,dim_flot_pred_aux id2 min out)::rest else (idp,out)::dim_flot_pred id1 id2 min rest
 
 (******)
 
-let rec mise_a_jour_gr gr = function
-  |[]->[]
-  |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then (aug_flot_succ id (next_elm chaine id) min gr) else (dim_flot_pred (next_elm chaine id) id min gr)
+let rec maj_gr gr chaine min = match chaine with
+  |[]->gr
+  |id::[]->gr
+  |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then (maj_gr (aug_flot_succ id (next_elm chaine id) min gr) rest min) else (maj_gr (dim_flot_pred (next_elm chaine id) id min gr) rest min)
 
 (*------------*)
-*)
+
+let rec algo gr source sink  = 
+  let chaine = chemin gr source sink [source] [source] in
+   if chaine = [] then gr else 
+     let min = min_flot(liste_aug_flots gr chaine) in 
+     algo (maj_gr gr chaine min) source sink
+
+
+
+
+(*------------*)
+
 
 
 (*Reconstitution du chemin à partir d'une liste de Node marqués *)

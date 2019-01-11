@@ -91,7 +91,7 @@ val chemin: (string * string) graph -> id -> id -> id list -> id list -> id list
 (*
 val flot_init_aux : string->(string*(string*string)) list -> (string*(string*string)) list
 val flot_init : string->string->(string*string) graph -> (string*string) graph
-
+*)
 val recup_flot_succ_aux : string->(string*(string*string)) list -> string
 val recup_flot_succ : string->string->(string*string) graph -> string
 
@@ -106,8 +106,9 @@ val min_flot : string list -> string
 val aug_flot_succ_aux : string->string->(string*(string*string)) list -> (string*(string*string)) list
 val aug_flot_succ : string->string->string->(string*string) graph -> (string*string) graph
 
-val dim_flot_succ_aux : string->string->(string*(string*string)) list -> (string*(string*string)) list
-val dim_flot_succ : string->string->string->(string*string) graph -> (string*string) graph
+val dim_flot_pred_aux : string->string->(string*(string*string)) list -> (string*(string*string)) list
+val dim_flot_pred : string->string->string->(string*string) graph -> (string*string) graph
 
-val mise_a_jour_gr : (string*string) graph -> string list -> (string*string) graph
-*)
+val maj_gr : (string*string) graph -> string list ->string -> (string*string) graph
+
+val algo : (string*string) graph -> id ->id -> (string*string) graph

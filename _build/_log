@@ -1,6 +1,6 @@
 ### Starting build.
 # Target: ftest.ml.depends, tags: { extension:ml, file:ftest.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep -modules ftest.ml > ftest.ml.depends # cached
+/usr/bin/ocamldep -modules ftest.ml > ftest.ml.depends
 # Target: gfile.mli.depends, tags: { extension:mli, file:gfile.mli, ocaml, ocamldep, quiet }
 /usr/bin/ocamldep -modules gfile.mli > gfile.mli.depends # cached
 # Target: graph.mli.depends, tags: { extension:mli, file:graph.mli, ocaml, ocamldep, quiet }
@@ -10,7 +10,7 @@
 # Target: gfile.cmi, tags: { byte, compile, extension:mli, file:gfile.mli, interf, ocaml, quiet }
 /usr/bin/ocamlc -c -o gfile.cmi gfile.mli # cached
 # Target: ftest.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ftest.cmo, file:ftest.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc -c -o ftest.cmo ftest.ml # cached
+/usr/bin/ocamlc -c -o ftest.cmo ftest.ml
 # Target: gfile.ml.depends, tags: { extension:ml, file:gfile.ml, ocaml, ocamldep, quiet }
 /usr/bin/ocamldep -modules gfile.ml > gfile.ml.depends # cached
 # Target: graph.ml.depends, tags: { extension:ml, file:graph.ml, ocaml, ocamldep, quiet }
@@ -20,7 +20,7 @@
 # Target: gfile.cmx, tags: { compile, extension:cmx, extension:ml, file:gfile.cmx, file:gfile.ml, implem, native, ocaml, quiet }
 /usr/bin/ocamlopt -c -o gfile.cmx gfile.ml # cached
 # Target: ftest.cmx, tags: { compile, extension:cmx, extension:ml, file:ftest.cmx, file:ftest.ml, implem, native, ocaml, quiet }
-/usr/bin/ocamlopt -c -o ftest.cmx ftest.ml # cached
+/usr/bin/ocamlopt -c -o ftest.cmx ftest.ml
 # Target: ftest.native, tags: { dont_link_with, extension:native, file:ftest.native, link, native, ocaml, program, quiet }
-/usr/bin/ocamlopt graph.cmx gfile.cmx ftest.cmx -o ftest.native # cached
+/usr/bin/ocamlopt graph.cmx gfile.cmx ftest.cmx -o ftest.native
 # Compilation successful.
