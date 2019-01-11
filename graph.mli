@@ -1,4 +1,3 @@
-
 (* Type of a directed graph in which arcs have labels of type 'a. *)
 type 'a graph
 
@@ -41,6 +40,9 @@ val out_arcs: 'a graph -> id -> 'a out_arcs
 val find_arc: 'a graph -> id -> id -> 'a option
 
 
+val get_flot: (string*string)-> string
+val get_capa: (string*string)-> string
+
 (**************  COMBINATORS, ITERATORS  **************)
 
 val append : string list -> string list -> string list
@@ -58,26 +60,28 @@ val map: 'a graph -> ('a -> 'b) -> 'b graph
 
 
 
-(* vérifications *)
+(**********     Vérifications    *******************)
+
 val add_elm: id list -> id -> id list
 val verif_flot: (string*string) -> bool
 val verif_flot_pos: (string*string) -> bool
 val not_appartient_list: id list -> id -> bool
 val exists_elm: id list -> id -> bool
 val first_elm: id list -> id
+val next_elm: id list -> id -> id
 
 
-    (* Recherche de Succésseurs/Prédecesseurs, sans et avec prise en compte du flot *)
+    (*********** Recherche de Succésseurs/Prédecesseurs, sans et avec prise en compte du flot *)
 val r_pred: id-> 'a graph ->  id list
 val r_succ: id-> 'a graph ->  id list
 val r_pred_flot: id-> (string*string) graph ->  id list
 val r_succ_flot: id-> (string*string) graph ->  id list
 
-val predecesseur: (string*string) graph -> id -> id list -> id list -> (id*(id list))
+val pred_succ_marque: (string*string) graph -> id -> id list -> id list -> (id*(id list))
 
 
-    (* Itérateur sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
-val verif_succ: id list -> id list -> id list -> id list * id list
+    (****** Itérateur sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
+val verif_succ_pred: id list -> id list -> id list -> id list * id list
 
     (* Itérateur sur les noeuds de la file  *)
 val iter_file: id list -> id list -> (string*string) graph -> id -> id list
@@ -85,6 +89,7 @@ val iter_file: id list -> id list -> (string*string) graph -> id -> id list
 val reconstitution: id -> id list -> (string*string) graph -> id list -> id list
 
 val chemin: (string * string) graph -> id -> id -> id list -> id list -> id list
+
 
 
 (*list.iter => Afficher sans write*)
@@ -112,3 +117,4 @@ val dim_flot_pred : string->string->string->(string*string) graph -> (string*str
 val maj_gr : (string*string) graph -> string list ->string -> (string*string) graph
 
 val algo : (string*string) graph -> id ->id -> (string*string) graph
+val algo1 : (string*string) graph -> id ->id -> (string*string) graph

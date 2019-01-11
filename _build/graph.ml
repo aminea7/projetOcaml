@@ -88,6 +88,15 @@ let getMarqueZ res = match res with
     |(fileZ,marqueZ) -> marqueZ
     |_ -> failwith "Error getMarqueZ"
 
+        (* Recupérer le flot ou la capa d'un flot  *)
+
+let get_flot s = match s with
+    |(f,c)->f
+    |_->failwith "Error get_flot"
+
+let get_capa s = match s with
+        |(f,c)->c
+        |_->failwith "Error get_capa"
 
 
         (* Verif flot d'un arc : Si flot<capa *)
@@ -153,22 +162,29 @@ let rec rsaf acu = function
     |[]-> acu
 let rec r_succ_flot x = function
     |(idp,out)::rest -> if (idp=x) then rsaf [] out else r_succ_flot x rest
-    |[]->failwith "Pas de Succésseurs"
+    |[]->failwith"Error r_succ_flot : node non existant"
 
 
 
+(****************************************************************************************************)
+(****************************************************************************************************)
 
 
-      (***********  Etape4: Recherche d'un predecesseur d'un node dans la liste des noeuds marqués pour reconstituer une chaine
+
+      (***********  Etape4: Recherche d'un predecesseur ou Succésseur d'un node dans la liste des noeuds marqués pour reconstituer une chaine
           Retourne un noeud et la nouvelle liste des elements marqués   ***************)
+(*
+let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
+  |y::rest -> if  ((find_arc gr y x) != None) && (not_appartient_list chemin_en_cours y) then (y,rest)
+                       else (if ((find_arc gr x y) != None) && (not_appartient_list chemin_en_cours y) then (y,rest)
+                                else (pred_succ_marque gr x chemin_en_cours rest))
+  |[] -> failwith "Pas de pred_succ_marque"
+ *)
 
-let rec predecesseur gr x chemin_en_cours =  function   (*OKK*)
-  (*|y::rest -> if  ((find_arc gr y x) != None) && (not_appartient_list chemin_en_cours y) then y else ((if  (find_arc gr x y) != None then y else predecesseur gr x rest)) *)
-  |y::rest -> if  ((find_arc gr y x) != None) && (not_appartient_list chemin_en_cours y)
-                      then (y,rest)
-                       else (predecesseur gr x chemin_en_cours rest)
-  |[] -> failwith "Pas de predecesseur"
-
+let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
+  |y::rest -> if  (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None) && (verif_flot (get_option (find_arc gr y x))) then (y,rest)
+                       else (pred_succ_marque gr x chemin_en_cours rest)
+  |[] -> failwith "Pas de pred_succ_marque"
 
 
         (************   Etape3 : Reconstitution du chemin à partir d'une liste de Node marqués
@@ -176,15 +192,15 @@ let rec predecesseur gr x chemin_en_cours =  function   (*OKK*)
 
 let rec reconstitution source acu gr marqueZ = (*OK*)
         if (first_elm acu)=source then acu
-         else (reconstitution source ((get_pred (predecesseur gr (first_elm acu) acu marqueZ))::acu)
+         else (reconstitution source ((get_pred (pred_succ_marque gr (first_elm acu) acu marqueZ))::acu)
                               gr marqueZ )
 
 
        (************ Etape 2: Itérateurs sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node x si non marqué
            puis renvoie nvelle file et nvelle liste des noeuds marqués  ************)
 
-let rec verif_succ fileZ marqueZ = function  (*OK*)
-   |x::rest -> if (not_appartient_list marqueZ x) then (verif_succ (add_elm fileZ x) (x::marqueZ) rest) else (verif_succ fileZ marqueZ rest)
+let rec verif_succ_pred fileZ marqueZ = function  (*OK*)
+   |x::rest -> if (not_appartient_list marqueZ x) then (verif_succ_pred (add_elm fileZ x) (x::marqueZ) rest) else (verif_succ_pred fileZ marqueZ rest)
    |[] -> (fileZ,marqueZ)
 
 
@@ -193,20 +209,21 @@ let rec verif_succ fileZ marqueZ = function  (*OK*)
 
 let rec iter_file fileZ marqueZ gr sink = match fileZ with (*ok*)
 |[x]-> if (exists_elm marqueZ sink) then marqueZ
-                                       else (iter_file (getFileZ   (verif_succ (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
-                                                       (getMarqueZ (verif_succ (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
+                                       else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                       (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
                                                        gr sink)
 
 |x::_ -> if (exists_elm marqueZ sink) then marqueZ
-(*                                     else (iter_file (getFileZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
-                                                       (getMarqueZ (verif (remove_elm x fileZ) marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
+                                         else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                         (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (r_succ_flot x gr)))
+                                                       gr sink)
+(*
+|x::_ -> if (exists_elm marqueZ sink) then marqueZ
+                                         else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
+                                                         (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
                                                        gr sink)
 *)
-                                       else (iter_file (getFileZ   (verif_succ (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
-                                                       (getMarqueZ (verif_succ (remove_elm x fileZ) marqueZ (r_succ_flot x gr)))
-                                                       gr sink)
-
-|[]-> failwith "Pas de chemin trouvé [Error iter_file]"
+|[]-> []
 
         (********************* Algo: Recherche d'un chemin ***********************)
 
@@ -219,6 +236,37 @@ let chemin gr source sink fileZ marqueZ =   (*OKKK*)
 (****************************************************************************************************)
 (****************************************************************************************************)
 
+        (* Dans map_aux , pour ne peut réutiliser d'autres noeuds du chemin, pr tt node x, on enleve tt les elms avant lui dans le chemin*)
+
+let rec suite_chemin chemin x = match chemin with
+|h1::rest -> if h1=x then rest else (suite_chemin rest x)
+|h1::[]-> failwith "Fin de la liste [suite_chemin]"
+|[] -> failwith "Error suite_chemin";;
+
+        (* Calcul Flot min *)
+
+let flot_min gr min chemin = match chemin with
+    |x::rest -> if min < (int_of_string (get_flot (get_option (find_arc gr x (next_elm chemin x))))) then min
+                    else (int_of_string (get_flot (get_option (find_arc gr x (next_elm chemin x)))))
+    |[] -> min
+
+        (* Modification du graph en ft de la chaine améliorante et du min *)
+
+(*let rec map_aux f chemin = function
+  |(x,y)::rest -> if (exists_elm chemin x)&&(exists_elm (r_succ_flot x gr)) then (x, f y)::(map_aux  f rest)
+                    else (x,y)::(map_aux f rest)
+  |[]->[]
+
+let rec map gr f chemin   = List.map (fun (id,out) -> if (exists_elm chemin id) then (id, map_aux f (suite_chemin chemin id)out) else (id,out)) gr
+
+
+
+let update_graf graph chemin min = Graph.map graph (fun () -> ("0",chaine))
+
+let algo *)
+
+(****************************************************************************************************)
+(****************************************************************************************************)
 
 
 
@@ -300,12 +348,18 @@ let rec maj_gr gr chaine min = match chaine with
 
 (*------------*)
 
-let rec algo gr source sink  = 
+let rec algo gr source sink  =
   let chaine = chemin gr source sink [source] [source] in
-   if chaine = [] then gr else 
-     let min = min_flot(liste_aug_flots gr chaine) in 
+   if chaine = [] then gr else
+     let min = min_flot(liste_aug_flots gr chaine) in
      algo (maj_gr gr chaine min) source sink
 
+
+let algo1 gr source sink  =
+  let chaine = chemin gr source sink [source] [source] in
+   if chaine = [] then gr else
+     let min = min_flot(liste_aug_flots gr chaine) in
+      (maj_gr gr chaine min)
 
 
 
