@@ -129,3 +129,26 @@ let from_file path =
 
   close_in infile ;
   final_graph
+
+let export path graph = 
+
+  (* Open a write-file. *)
+  let ff = open_out path in
+
+    (* Write in this file. *)
+    fprintf ff "digraph finite_state_machine {\n
+	rankdir=LR;\n
+	size=\"8,5\"\n
+	node [shape = circle];\n\n" ;
+
+  (* (* Write all nodes *)
+    v_iter graph (fun id _ -> fprintf ff "v %s\n" id) ;
+    fprintf ff "\n" ; *)
+
+    (* Write all arcs *)
+    v_iter graph (fun id out -> List.iter (fun (id2, (f,c)) -> fprintf ff "%s -> %s [label = \"%s/%s\" ];\n" id id2 f c) out) ;
+
+    fprintf ff "}\n" ;
+
+    close_out ff ;
+    ()

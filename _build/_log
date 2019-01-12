@@ -20,13 +20,26 @@
 # Target: graph.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:graph.cmo, file:graph.ml, implem, ocaml, quiet }
 /usr/bin/ocamlc -c -o graph.cmo graph.ml
 + /usr/bin/ocamlc -c -o graph.cmo graph.ml
-File "graph.ml", line 1:
-Error: The implementation graph.ml does not match the interface graph.cmi:
-       Values do not match:
-         val rpaf :
-           'a -> 'b -> 'b list -> ('a * (string * 'c)) list -> 'b list
-       is not included in
-         val rpaf : id -> id -> id list -> id list -> id list
-       File "graph.ml", line 158, characters 8-12: Actual declaration
-Command exited with code 2.
-# Compilation unsuccessful.
+File "graph.ml", line 73, characters 3-4:
+Warning 11: this match case is unused.
+File "graph.ml", line 76, characters 3-4:
+Warning 11: this match case is unused.
+File "graph.ml", line 98, characters 5-6:
+Warning 11: this match case is unused.
+File "graph.ml", line 101, characters 5-6:
+Warning 11: this match case is unused.
+File "graph.ml", line 107, characters 5-6:
+Warning 11: this match case is unused.
+File "graph.ml", line 111, characters 9-10:
+Warning 11: this match case is unused.
+File "graph.ml", line 118, characters 1-2:
+Warning 11: this match case is unused.
+File "graph.ml", line 124, characters 1-2:
+Warning 11: this match case is unused.
+File "graph.ml", line 146, characters 1-7:
+Warning 11: this match case is unused.
+File "graph.ml", line 277, characters 1-7:
+Warning 11: this match case is unused.
+# Target: ftest.byte, tags: { byte, dont_link_with, extension:byte, file:ftest.byte, link, ocaml, program, quiet }
+/usr/bin/ocamlc graph.cmo gfile.cmo ftest.cmo -o ftest.byte
+# Compilation successful.

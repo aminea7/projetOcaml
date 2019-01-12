@@ -19,3 +19,4 @@ val from_file: path -> string graph
 
 val write_file: path -> (string*string) graph -> unit
 val write_file_chemin: path -> id list -> (string*string) graph -> id -> id -> unit
+val export : path -> (string*string) graph -> unit

@@ -154,7 +154,7 @@ let rec rpa x idp = function
 let r_pred x gr = List.map (fun (idp,out) -> rpa x idp out) gr
 
         (*Recherche Prédecesseurs en vérifiant le flot*)
-
+(*
 let rec rpaf x idp acu = function
 |(ids,outs)::rest -> if (ids=x)&&(verif_flot_pos outs) then (idp::acu) else (rpaf x idp acu rest)
 |[]->acu
@@ -162,7 +162,7 @@ let rec rpaf x idp acu = function
 
 let rec r_pred_flot x gr acu = match gr with
     |(idp,out)::rest -> (r_pred_flot x rest (rpaf x idp acu out))
-    |_ -> acu
+    |_ -> acu *)
 
         (*Recherche Succésseurs sans prendre en compte le flot*)
 
@@ -190,15 +190,15 @@ let rec r_succ_flot x = function
 (****************************************************************************************************)
 
 
-let node_succ_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None)
+let node_pred_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None)
                                                 then (if (verif_flot (get_option (find_arc gr y x))) then true else false)
                                                     else false
 
-let node_pred_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr x y) != None)
+let node_succ_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr x y) != None)
                                              then (if (verif_flot_pos (get_option (find_arc gr x y))) then true else false)
                                                 else false
 
-      (***********  Etape4: Recherche d'un predecesseur ou Succésseur d'un node dans la liste des noeuds marqués pour reconstituer une chaine
+      (***********  Etape4: Recherche d'un predecesseur  d'un node dans la liste des noeuds marqués pour reconstituer une chaine
           Retourne un noeud et la nouvelle liste des elements marqués   ***************)
 
 (*
@@ -209,9 +209,7 @@ let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
 *)
 
 let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
-  |y::rest -> if  (node_succ_marque gr x chemin_en_cours y) then (y,rest) else (
-                    if (node_pred_marque gr x chemin_en_cours y) then (y,rest) else (pred_succ_marque gr x chemin_en_cours rest))
-
+  |y::rest -> if  (node_pred_marque gr x chemin_en_cours y) then (y,rest) else (pred_succ_marque gr x chemin_en_cours rest)
   |[] -> failwith "Pas de pred_succ_marque"
 
 
@@ -342,7 +340,8 @@ let min_flot = function
 |[]-> failwith "liste vide"
 
 (*----- mettre à jour le graphe -----*)
-(* augmentation flot succ *)
+
+        (* augmentation flot succ *)
 
 let rec aug_flot_succ_aux id2 min = function
   |[]->[]
@@ -352,22 +351,24 @@ let rec aug_flot_succ id1 id2 min = function
   |[] -> []
   |(idp,out)::rest -> if (idp=id1) then (idp,aug_flot_succ_aux id2 min out)::rest else (idp,out)::aug_flot_succ id1 id2 min rest
 
-(* diminution flot pred *)
+        (* diminution flot pred *)
 
 let rec dim_flot_pred_aux id2 min = function
   |[]->[]
-  |(ids,(f,c))::rest -> if (ids=id2) then (ids,(string_of_int(int_of_string f - int_of_string min),c))::rest else (ids,(f,c))::dim_flot_pred_aux id2 min rest
+  |(ids,(f,c))::rest -> if (ids=id2) then (ids,(string_of_int(int_of_string f - int_of_string min),c))::rest
+                        else (ids,(f,c))::dim_flot_pred_aux id2 min rest
 
 let rec dim_flot_pred id1 id2 min = function
   |[] -> []
   |(idp,out)::rest -> if (idp=id1) then (idp,dim_flot_pred_aux id2 min out)::rest else (idp,out)::dim_flot_pred id1 id2 min rest
 
-(* mettre à jour le graphe *)
+        (* mettre à jour le graphe *)
 
 let rec maj_gr gr chaine min = match chaine with
   |[]->gr
   |id::[]->gr
-  |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then (maj_gr (aug_flot_succ id (next_elm chaine id) min gr) rest min) else (maj_gr (dim_flot_pred (next_elm chaine id) id min gr) rest min)
+  |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then (maj_gr (aug_flot_succ id (next_elm chaine id) min gr) rest min)
+                                                                    else (maj_gr (dim_flot_pred (next_elm chaine id) id min gr) rest min)
 
 (* l'algorithme final *)
 

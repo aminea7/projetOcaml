@@ -74,8 +74,8 @@ val next_elm: id list -> id -> id
     (*********** Recherche de Succésseurs/Prédecesseurs, sans et avec prise en compte du flot *)
 val r_pred: id-> 'a graph ->  id list
 val r_succ: id-> 'a graph ->  id list
-val rpaf: id -> id -> id list -> id list -> id list
-val r_pred_flot: id-> (string*string) graph ->  id list -> id list
+(*val rpaf: id -> id -> id list -> id list -> id list *)
+(*val r_pred_flot: id-> (string*string) graph ->  id list -> id list*)
 val r_succ_flot: id-> (string*string) graph ->  id list
 
 
@@ -98,10 +98,7 @@ val chemin: (string * string) graph -> id -> id -> id list -> id list -> id list
 
 
 (*list.iter => Afficher sans write*)
-(*
-val flot_init_aux : string->(string*(string*string)) list -> (string*(string*string)) list
-val flot_init : string->string->(string*string) graph -> (string*string) graph
-*)
+
 val recup_flot_succ_aux : string->(string*(string*string)) list -> string
 val recup_flot_succ : string->string->(string*string) graph -> string
 
@@ -122,4 +119,3 @@ val dim_flot_pred : string->string->string->(string*string) graph -> (string*str
 val maj_gr : (string*string) graph -> string list ->string -> (string*string) graph
 
 val algo : (string*string) graph -> id ->id -> (string*string) graph
-val algo1 : (string*string) graph -> id ->id -> (string*string) graph
