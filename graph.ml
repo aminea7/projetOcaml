@@ -65,7 +65,7 @@ let rec map gr f   = List.map (fun (id,out) -> (id, map_aux f out)) gr
 
 let get_option arc = match arc with
 |Some x -> x
-|_ -> failwith "Error get_option" ;;
+|_ -> ("err","get_option")
 
        (*2 Get pour récupérer les 2 résultats de la ft prédecesseur *)
 let get_nvlist res = match res with
@@ -114,12 +114,14 @@ let get_capa s = match s with
         (* Verif flot d'un arc : Si flot<capa *)
 
 let verif_flot y = match y with
-|(flot,capa)-> if (int_of_string flot)<(int_of_string capa) then true else false
+|(flot,capa)-> if (flot!="err") then (if (int_of_string flot)<(int_of_string capa) then true else false) else false
+|_ -> failwith "Error verif_flot"
 
         (* Verif flot d'un arc : Si flot>0 *)
 
 let verif_flot_pos y = match y with
-|(flot,capa)-> if (int_of_string flot)>0 then true else false
+|(flot,capa)-> if (flot !="err") then (if (int_of_string flot)>0 then true else false) else false
+|_ -> failwith "Error verif_flot_pos"
 
         (* Verif si Node y si non marqué, donc non présent dans une liste M *)
 
@@ -149,14 +151,18 @@ let rec next_elm list x = match list with
 let rec rpa x idp = function
   |(ids,outs)::rest -> if ids=x then  idp  else  (rpa x idp rest)
   |[]->""
-let r_pred x gr = List.map (fun (idp,out) -> rpa x  idp out) gr
+let r_pred x gr = List.map (fun (idp,out) -> rpa x idp out) gr
 
         (*Recherche Prédecesseurs en vérifiant le flot*)
 
-let rec rpaf x idp = function
-|(ids,outs)::rest -> if (ids=x)&&(verif_flot_pos outs) then idp  else (rpaf x idp rest)
-|[]->""
-let r_pred_flot x gr = List.map (fun (idp,out) -> rpaf x idp out) gr
+let rec rpaf x idp acu = function
+|(ids,outs)::rest -> if (ids=x)&&(verif_flot_pos outs) then (idp::acu) else (rpaf x idp acu rest)
+|[]->acu
+(* let r_pred_flot x gr acu = List.map (fun (idp,out) -> rpaf x idp acu out) gr  *)
+
+let rec r_pred_flot x gr acu = match gr with
+    |(idp,out)::rest -> (r_pred_flot x rest (rpaf x idp acu out))
+    |_ -> acu
 
         (*Recherche Succésseurs sans prendre en compte le flot*)
 
@@ -184,31 +190,38 @@ let rec r_succ_flot x = function
 (****************************************************************************************************)
 
 
+let node_succ_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None)
+                                                then (if (verif_flot (get_option (find_arc gr y x))) then true else false)
+                                                    else false
+
+let node_pred_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr x y) != None)
+                                             then (if (verif_flot_pos (get_option (find_arc gr x y))) then true else false)
+                                                else false
 
       (***********  Etape4: Recherche d'un predecesseur ou Succésseur d'un node dans la liste des noeuds marqués pour reconstituer une chaine
           Retourne un noeud et la nouvelle liste des elements marqués   ***************)
 
-
+(*
 let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
   |y::rest -> if  (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None) && (verif_flot (get_option (find_arc gr y x))) then (y,rest)
                        else (pred_succ_marque gr x chemin_en_cours rest)
   |[] -> failwith "Pas de pred_succ_marque"
+*)
 
-(*
 let rec pred_succ_marque gr x chemin_en_cours =  function   (*OKK*)
-  |y::rest -> if  (not_appartient_list chemin_en_cours y) && ((find_arc gr y x) != None) && (verif_flot (get_option (find_arc gr y x))) then (y,rest)
-                       else ( if ((not_appartient_list chemin_en_cours y) && ((find_arc gr x y) != None) && (verif_flot_pos (get_option (find_arc gr y x)))) then (y,rest)
-                                else (pred_succ_marque gr x chemin_en_cours rest))
+  |y::rest -> if  (node_succ_marque gr x chemin_en_cours y) then (y,rest) else (
+                    if (node_pred_marque gr x chemin_en_cours y) then (y,rest) else (pred_succ_marque gr x chemin_en_cours rest))
+
   |[] -> failwith "Pas de pred_succ_marque"
 
-*)
+
 
         (************   Etape3 : Reconstitution du chemin à partir d'une liste de Node marqués
         Renvoie une liste des noeuds dont on doit augmenter le flot    ************)
 
 let rec reconstitution source acu gr marqueZ = (*OK*)
         if (first_elm acu)=source then acu
-         else (reconstitution source ((get_pred (pred_succ_marque gr (first_elm acu) acu marqueZ))::acu)
+         else (reconstitution source ((get_pred (pred_succ_marque gr (first_elm acu) acu marqueZ ))::acu)
                               gr marqueZ )
 
 
@@ -236,12 +249,12 @@ let rec iter_file fileZ marqueZ gr sink = match fileZ with (*ok*)
                                                          gr sink)
 (*
 |x::_ -> if (exists_elm marqueZ sink) then marqueZ
-                                         else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
-                                                         (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
+                                         else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr []))))
+                                                         (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr []))))
                                                           gr sink)
 |[x] -> if (exists_elm marqueZ sink) then marqueZ
-                                       else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
-                                                       (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr))))
+                                       else (iter_file (getFileZ   (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr []))))
+                                                       (getMarqueZ (verif_succ_pred (remove_elm x fileZ)  marqueZ (append (r_succ_flot x gr)(r_pred_flot x gr []))))
                                                         gr sink)
 *)
 |[]-> []
@@ -251,7 +264,7 @@ let rec iter_file fileZ marqueZ gr sink = match fileZ with (*ok*)
 let chemin gr source sink fileZ marqueZ =   (*OKKK*)
     (*list_marque= iter_file [source] [source] gr sink ; *)
     let list_mark = iter_file [source] [source] gr sink in
-        if list_mark!=[] then (reconstitution source [sink] gr (list_mark))
+        if list_mark!=[] then (reconstitution source [sink] gr (remove_elm sink list_mark))
                             else []
 
 
@@ -387,13 +400,3 @@ let algo1 gr source sink  =
 
 
 (*------------*)
-
-
-
-(*Reconstitution du chemin à partir d'une liste de Node marqués *)
-(*ATTENTION : Il faut inverser la list acu l.167*)
-(*let rec reconstitution source acu list gr marqueZ = match list with
-|[x] -> reconstitution source ((predecesseur gr x rest)::acu) gr (predecesseur gr x rest)
-|x::rest -> reconstitution source ((predecesseur gr x rest)::acu) gr rest
-|[] -> if (first_elm acu)=source then acu else failwith "Error reconstitution"
-*)

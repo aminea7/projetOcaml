@@ -74,8 +74,13 @@ val next_elm: id list -> id -> id
     (*********** Recherche de Succésseurs/Prédecesseurs, sans et avec prise en compte du flot *)
 val r_pred: id-> 'a graph ->  id list
 val r_succ: id-> 'a graph ->  id list
-val r_pred_flot: id-> (string*string) graph ->  id list
+val rpaf: id -> id -> id list -> id list -> id list
+val r_pred_flot: id-> (string*string) graph ->  id list -> id list
 val r_succ_flot: id-> (string*string) graph ->  id list
+
+
+val node_succ_marque: (string*string) graph -> id -> id list -> id -> bool
+val node_pred_marque: (string*string) graph -> id -> id list -> id -> bool
 
 val pred_succ_marque: (string*string) graph -> id -> id list -> id list -> (id*(id list))
 
