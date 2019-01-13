@@ -10,19 +10,20 @@ type arc = string*string
  *  e label id1 id2    (arc with the given (string) label. Goes from node id1 to node id2.)
  *
  *)
-
+        (* Recuperer la valeur d'un arc car find_arc renvoit un 'a option *)
  let get_option arc = match arc with
  |Some x -> x
  |_ -> failwith "Error get_option" ;;
 
+        (*Recupérer le flot ou la capa d'un arc*)
 let get_flot s = match s with
     |(f,c)->f
     |_->failwith "Error get_flot"
-
 let get_capa s = match s with
         |(f,c)->c
         |_->failwith "Error get_capa"
 
+        (*1er elm d'une liste*)
 let first_elm list = match list with
     |h::rest -> h
     |[]-> failwith "Error first_elm : File vide"
@@ -61,7 +62,7 @@ let write_file path graph =
   close_out ff ;
   ()
 
-  let write_file_chemin path chemin gr source sink =
+  let write_file_chemin path chemin gr source sink =    (* Fonction permettant d'afficher une chaine : A été utilse pour valider notre recherche de chemin*)
 
     (* Open a write-file. *)
     let ff = open_out path in
@@ -130,7 +131,7 @@ let from_file path =
   close_in infile ;
   final_graph
 
-let export path graph = 
+let export path graph =
 
   (* Open a write-file. *)
   let ff = open_out path in

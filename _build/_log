@@ -12,34 +12,20 @@
 # Target: ftest.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:ftest.cmo, file:ftest.ml, implem, ocaml, quiet }
 /usr/bin/ocamlc -c -o ftest.cmo ftest.ml # cached
 # Target: gfile.ml.depends, tags: { extension:ml, file:gfile.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep -modules gfile.ml > gfile.ml.depends # cached
-# Target: gfile.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:gfile.cmo, file:gfile.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc -c -o gfile.cmo gfile.ml # cached
+/usr/bin/ocamldep -modules gfile.ml > gfile.ml.depends
 # Target: graph.ml.depends, tags: { extension:ml, file:graph.ml, ocaml, ocamldep, quiet }
-/usr/bin/ocamldep -modules graph.ml > graph.ml.depends
+/usr/bin/ocamldep -modules graph.ml > graph.ml.depends # cached
 # Target: graph.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:graph.cmo, file:graph.ml, implem, ocaml, quiet }
-/usr/bin/ocamlc -c -o graph.cmo graph.ml
-+ /usr/bin/ocamlc -c -o graph.cmo graph.ml
-File "graph.ml", line 73, characters 3-4:
+/usr/bin/ocamlc -c -o graph.cmo graph.ml # cached
+# Target: gfile.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:gfile.cmo, file:gfile.ml, implem, ocaml, quiet }
+/usr/bin/ocamlc -c -o gfile.cmo gfile.ml
++ /usr/bin/ocamlc -c -o gfile.cmo gfile.ml
+File "gfile.ml", line 21, characters 5-6:
 Warning 11: this match case is unused.
-File "graph.ml", line 76, characters 3-4:
+File "gfile.ml", line 24, characters 9-10:
 Warning 11: this match case is unused.
-File "graph.ml", line 98, characters 5-6:
-Warning 11: this match case is unused.
-File "graph.ml", line 101, characters 5-6:
-Warning 11: this match case is unused.
-File "graph.ml", line 107, characters 5-6:
-Warning 11: this match case is unused.
-File "graph.ml", line 111, characters 9-10:
-Warning 11: this match case is unused.
-File "graph.ml", line 118, characters 1-2:
-Warning 11: this match case is unused.
-File "graph.ml", line 124, characters 1-2:
-Warning 11: this match case is unused.
-File "graph.ml", line 146, characters 1-7:
-Warning 11: this match case is unused.
-File "graph.ml", line 277, characters 1-7:
+File "gfile.ml", line 34, characters 1-7:
 Warning 11: this match case is unused.
 # Target: ftest.byte, tags: { byte, dont_link_with, extension:byte, file:ftest.byte, link, ocaml, program, quiet }
-/usr/bin/ocamlc graph.cmo gfile.cmo ftest.cmo -o ftest.byte
+/usr/bin/ocamlc graph.cmo gfile.cmo ftest.cmo -o ftest.byte # cached
 # Compilation successful.

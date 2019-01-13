@@ -82,11 +82,11 @@ val r_succ_flot: id-> (string*string) graph ->  id list
 val node_succ_marque: (string*string) graph -> id -> id list -> id -> bool
 val node_pred_marque: (string*string) graph -> id -> id list -> id -> bool
 
-val pred_succ_marque: (string*string) graph -> id -> id list -> id list -> (id*(id list))
+val predecesseur_marque: (string*string) graph -> id -> id list -> id list -> (id*(id list))
 
 
     (****** Itérateur sur une liste contenant les Succésseurs/Prédecesseurs pour Verifier chaque Node y si non marqué + flot ok *)
-val verif_succ_pred: id list -> id list -> id list -> id list * id list
+val verif_list_succ: id list -> id list -> id list -> id list * id list
 
     (* Itérateur sur les noeuds de la file  *)
 val iter_file: id list -> id list -> (string*string) graph -> id -> id list
@@ -116,6 +116,9 @@ val aug_flot_succ : string->string->string->(string*string) graph -> (string*str
 val dim_flot_pred_aux : string->string->(string*(string*string)) list -> (string*(string*string)) list
 val dim_flot_pred : string->string->string->(string*string) graph -> (string*string) graph
 
-val maj_gr : (string*string) graph -> string list ->string -> (string*string) graph
+val maj_inverse_aug: id -> id -> id -> (string*string) graph -> (string*string) graph -> (string*string) graph
+val maj_inverse_dim: id -> id -> id -> (string*string) graph -> (string*string) graph -> (string*string) graph
+
+val maj_gr : (string*string) graph -> (string*string) graph -> string list ->string -> (string*string) graph
 
 val algo : (string*string) graph -> id ->id -> (string*string) graph
