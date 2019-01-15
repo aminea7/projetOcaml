@@ -131,6 +131,7 @@ let from_file path =
   close_in infile ;
   final_graph
 
+(* generate file in dot format *)
 let export path graph =
 
   (* Open a write-file. *)

@@ -43,6 +43,8 @@ let () =
   let () = Gfile.write_file_chemin outfile chaine2 graph _source _sink in
 *)
 
-  let () = Gfile.write_file outfile graph2  in
+(*  let () = Gfile.write_file outfile graph2  in
+*)
 
+  let () = Gfile.export outfile graph2 in
   ()

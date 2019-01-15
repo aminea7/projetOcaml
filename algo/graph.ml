@@ -238,7 +238,7 @@ let chemin gr source sink fileZ marqueZ =   (*OKKK*)
 (****************************************************************************************************)
 (****************************************************************************************************)
 
-(* recuperer flot succ *)
+(* recuperer le flot d'un arc (id1,id2) avec id2 succ de id1 *)
 
 let rec recup_flot_succ_aux id2 = function
   |[]->""
@@ -248,7 +248,7 @@ let rec recup_flot_succ id1 id2 = function
   |[] -> ""
   |(idp,out)::rest -> if (idp=id1) then recup_flot_succ_aux id2 out else recup_flot_succ id1 id2 rest
 
-(* recuperer flot pred *)
+(* recuperer le flot d'un arc (id1,id2) avec id2 pred de id1 *)
 
 let rec recup_flot_pred_aux id2 = function
   |[]->""
@@ -258,7 +258,7 @@ let rec recup_flot_pred id1 id2 = function
   |[] -> ""
   |(idp,out)::rest -> if (idp=id1) then recup_flot_pred_aux id2 out else recup_flot_pred id1 id2 rest
 
-(* liste des augmentations de flot possibles *)
+(* liste des augmentations de flot possibles : parcourir la chaine ameliorante et regarder chaque element par rapport à celui d'après s'il est son succ ou son pred*)
 
 let liste_aug_flots gr chaine =
   let rec loop gr acu = function
@@ -277,7 +277,7 @@ let min_flot = function
 
 (*----- mettre à jour le graphe -----*)
 
-        (* augmentation flot succ *)
+        (* augmentation flot pour les arcs (id1,id2) avec id2 succ de id1 *)
 
 let rec aug_flot_succ_aux id2 min = function
   |[]->[]
@@ -288,7 +288,7 @@ let rec aug_flot_succ id1 id2 min = function
   |(idp,out)::rest -> if (idp=id1) then (idp,aug_flot_succ_aux id2 min out)::rest
                       else (idp,out)::aug_flot_succ id1 id2 min rest
 
-        (* diminution flot pred *)
+        (* diminution flot pour les arcs (id1,id2) avec id2 pred de id1 *)
 
 let rec dim_flot_pred_aux id2 min = function
   |[]->[]
@@ -299,6 +299,9 @@ let rec dim_flot_pred id1 id2 min = function
   |[] -> []
   |(idp,out)::rest -> if (idp=id1) then (idp,dim_flot_pred_aux id2 min out)::rest
                     else (idp,out)::dim_flot_pred id1 id2 min rest
+
+
+(*****************)
 
 let maj_inverse_aug id1 id2 min gr gr_initial =
     if(true)       (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
@@ -319,8 +322,9 @@ let maj_inverse_dim id1 id2 min gr gr_initial =
                        else (dim_flot_pred id2 id1 min gr))
               else (aug_flot_succ id2 id1 min gr)
 
+(*****************)
 
-        (* mettre à jour le graphe *)
+        (* mettre à jour le graphe : parcourir la chaine ameliorante, rechercher les arcs dans le graph et modifier le flot avec les fcts aug_flot_succ et dim_flot_pred *)
 
 let rec maj_gr gr gr_initial chaine min = match chaine with
   |[]->gr
@@ -340,7 +344,7 @@ let rec maj_gr gr gr_initial chaine min = match chaine with
 *)
 
 
-(* l'algorithme final *)
+(* l'algorithme final : tant qu'il y a une chaine ameliorante on calcule le min (min_flot) et on met à jour le graphe (maj_gr)*)
 
 let rec algo gr source sink  =
   let chaine = chemin gr source sink [source] [source] in
