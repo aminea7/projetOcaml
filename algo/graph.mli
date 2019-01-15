@@ -121,4 +121,4 @@ val maj_inverse_dim: id -> id -> id -> (string*string) graph -> (string*string) 
 
 val maj_gr : (string*string) graph -> (string*string) graph -> string list ->string -> (string*string) graph
 
-val algo : (string*string) graph -> id ->id -> (string*string) graph
+val algo : (string*string) graph -> (string*string) graph -> id ->id -> (string*string) graph

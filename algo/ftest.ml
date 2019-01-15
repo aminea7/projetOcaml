@@ -19,32 +19,19 @@ let () =
   (* Open file *)
   let graph = Gfile.from_file infile in
 
-  (*On peut test map ici*)
-  (*let graph = Graph.map graph (fun chaine -> "0/"^chaine)   in*)
+  (* initialiser le graf*)
   let graph = Graph.map graph (fun chaine -> ("0",chaine))   in
 
-  (*let pred3 = Graph.r_pred "3" graph  in *)
-  let graph2 = Graph.algo graph _source _sink in
+  let graph2 = Graph.algo graph graph _source _sink in      (* graph final *)
 
-
-   (*let chaine = Graph.chemin graph _source _sink [_source] [_source] in*)
-
-(*
-  (* Rewrite the graph that has been read. *)
-  let () = Gfile.write_file_chemin outfile test1 graph _source _sink in
-*)
+  (*
+  (* Afficher un chemin  (id list), pour vérifier si notre chaine était optimale*)
+  let () = Gfile.write_file_chemin outfile test1 graph _source _sink in *)
 
 (*
-  let min = Graph.min_flot (liste_aug_flots graph chaine) in
-  let graph2 = Graph.maj_gr graph chaine min in
-
-  let chaine2 = Graph.chemin graph2 _source _sink [_source] [_source] in
-
-  let () = Gfile.write_file_chemin outfile chaine2 graph _source _sink in
+  let () = Gfile.write_file outfile graph2  in
 *)
 
-(*  let () = Gfile.write_file outfile graph2  in
-*)
+ let () = Gfile.export outfile graph2 in  (*afficher graphe en dot format*)
 
-  let () = Gfile.export outfile graph2 in
   ()

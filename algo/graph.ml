@@ -304,23 +304,25 @@ let rec dim_flot_pred id1 id2 min = function
 (*****************)
 
 let maj_inverse_aug id1 id2 min gr gr_initial =
-    if(true)       (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
-        then (if ((find_arc gr id2 id1) != None)
-                  then (add_arc gr id2 id1 ((string_of_int(int_of_string (get_capa (get_option (find_arc gr id1 id2))) -
-                                                           int_of_string (get_flot (get_option (find_arc gr id1 id2))))),
-                                            (get_capa (get_option (find_arc gr id1 id2)))))
+    (*if ((find_arc gr_initial id2 id1) = None)  *)  (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
+if (true)
+        then (if ((find_arc gr id2 id1) = None)
+                  then (add_arc gr id2 id1 ((string_of_int(int_of_string (get_capa (get_option (find_arc gr id1 id2))) - int_of_string (get_flot (get_option (find_arc gr id1 id2))))),(get_capa (get_option (find_arc gr id1 id2)))))
                    else (dim_flot_pred id2 id1 min gr))
-          else (dim_flot_pred id2 id1 min gr)
+          (*else (dim_flot_pred id2 id1 min gr)*)
+          else gr
 
 
 let maj_inverse_dim id1 id2 min gr gr_initial =
-    if(true)       (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
-            then (if ((find_arc gr id2 id1) != None)
+if(true)
+    (*if(((find_arc gr_initial id2 id1) = None))    *)   (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
+            then (if ((find_arc gr id2 id1) = None)
                       then (add_arc gr id2 id1 ((string_of_int(int_of_string (get_capa (get_option (find_arc gr id1 id2))) -
                                                                int_of_string (get_flot (get_option (find_arc gr id1 id2))))),
                                                 (get_capa (get_option (find_arc gr id1 id2)))))
                        else (dim_flot_pred id2 id1 min gr))
-              else (aug_flot_succ id2 id1 min gr)
+            (*  else (aug_flot_succ id2 id1 min gr) *)
+            else gr
 
 (*****************)
 
@@ -339,18 +341,21 @@ let rec maj_gr gr gr_initial chaine min = match chaine with
   |[]->gr
   |id::[]->gr
   |id::rest -> if exists_elm (r_succ id gr_initial) (next_elm chaine id)
-                    then  (maj_inverse_aug (id (next_elm chaine id) min (maj_gr (aug_flot_succ id (next_elm chaine id) min gr) gr_initial rest min) gr))
-                    else  (maj_inverse_dim (id (next_elm chaine id) min (maj_gr (dim_flot_pred (next_elm chaine id) id min gr) gr_initial rest min) gr))
+                    then  (maj_gr (maj_inverse_aug id (next_elm chaine id) min (aug_flot_succ id (next_elm chaine id) min gr) gr_initial) gr_initial rest min)
+                    else  (maj_gr (maj_inverse_dim id (next_elm chaine id) min (dim_flot_pred (next_elm chaine id) id min gr) gr_initial) gr_initial rest min)
 *)
-
+(*
+(dim_flot_pred (next_elm chaine id) id min gr)
+(maj_inverse_aug id (next_elm chaine id) min grrrr gr_initial)
+(maj_inverse_dim id (next_elm chaine id) min grrrrr gr_initial)*)
 
 (* l'algorithme final : tant qu'il y a une chaine ameliorante on calcule le min (min_flot) et on met à jour le graphe (maj_gr)*)
 
-let rec algo gr source sink  =
+let rec algo gr gr_initial source sink  =
   let chaine = chemin gr source sink [source] [source] in
    if chaine = [] then gr else
      let min = min_flot(liste_aug_flots gr chaine) in
-     algo (maj_gr gr gr chaine min) source sink
+     algo (maj_gr gr gr_initial chaine min) gr_initial source sink
 
 
 (*------------*)

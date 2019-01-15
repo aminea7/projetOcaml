@@ -14,11 +14,13 @@ Notre répertoire est composée de 3 dossiers, le 1er dossier "algo" contient le
 
 Compilation :
     - rm -f *.cmi *.cmo ftest ;
-    - ocamlbuild ftest.byte ;
+    - ocamlbuild algo/ftest.native ;   Depuis le dossier Ocamlprojet
 
 Il faut exécuter le fichier ftest en entrant les 3 paramètres nécessaires : le fichier que l'on va traiter, la Source et la Destination.
 Il faut aussi ajouter un nom pour le fichier qui va etre généré en sortie
-Exp : ./ftest.byte ../grafs/graph1 0 5 ../tests/test0906 ;
+Exp : compilation depuis le dossier Ocamlprojet : ./ftest.native grafs/graph1 0 5 results/test0906 ;
+
+Convertir en png : dot -Tpng your-dot-file > some-output-file
 
 
     Notre algo ?
@@ -32,7 +34,7 @@ On crée une chaine contenant au depart seulement la destination, et tant que ce
 
     Ensuite, on prend la chaine améliorante et on itière sur cette liste en récupérant le flot qu'on peut augmenter ou diminuer sur chaque arc et on stocke ces valeurs dans une liste pour pouvoir récupérer le minimum. Une fois on a cette valeur, on crée des fonctions qui permettent d'itérer sur le graphe et de modifier les flots et on les utilise dans une fonction qui permet de mettre le graph à jour. Cette dernière fonction itère sur la chaine améliorante en regardant pour chaque element si l'element suivant est son successeur ou son prédecesseur. Ainsi on sait si on doit augmenter le flot (pour les successeurs) ou diminuer le flot (pour les prédecesseurs).
 
-   Enfin, on crée une fonction finale qui prend en paramètre le graph, la source et la destination et qui fait une recherche d'une chaine améliorante à chaque boucle puis met à jour le graphe et elle s'arrête quand il n'y a plus de chaine améliorante. 
+   Enfin, on crée une fonction finale qui prend en paramètre le graph, la source et la destination et qui fait une recherche d'une chaine améliorante à chaque boucle puis met à jour le graphe et elle s'arrête quand il n'y a plus de chaine améliorante.
 
     Le résultat ?
 
