@@ -13,7 +13,7 @@ Notre répertoire est composée de 3 dossiers, le 1er dossier "algo" contient le
     Comment ca marche ?
 
 Compilation :
-    - rm -f *.cmi *.cmo ftest ;
+    - rm -f *.cmi *.cmo algo/ftest ;
     - ocamlbuild algo/ftest.native ;   Depuis le dossier Ocamlprojet
 
 Il faut exécuter le fichier ftest en entrant les 3 paramètres nécessaires : le fichier que l'on va traiter, la Source et la Destination.

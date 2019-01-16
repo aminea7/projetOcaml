@@ -22,16 +22,23 @@ let () =
   (* initialiser le graf*)
   let graph = Graph.map graph (fun chaine -> ("0",chaine))   in
 
-  let graph2 = Graph.algo graph graph _source _sink in      (* graph final *)
+(* Démonstration que les arcs inverses fonctionnent
+  let graph2 = Graph.algo1 graph graph _source _sink in
+  let graph2 = Graph.algo graph2 graph _source _sink in
+ *)
+
+  let graph2 = Graph.algo graph graph _source _sink in
+  let graph2 = Graph.maj_remove graph2 graph in
+
 
   (*
   (* Afficher un chemin  (id list), pour vérifier si notre chaine était optimale*)
   let () = Gfile.write_file_chemin outfile test1 graph _source _sink in *)
 
-(*
-  let () = Gfile.write_file outfile graph2  in
-*)
 
- let () = Gfile.export outfile graph2 in  (*afficher graphe en dot format*)
+  let () = Gfile.export outfile graph2 in
+
+
+ (*let () = Gfile.write_file outfile graph in  (*afficher graphe en dot format*)*)
 
   ()

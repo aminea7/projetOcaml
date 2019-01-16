@@ -91,9 +91,11 @@ val verif_list_succ: id list -> id list -> id list -> id list * id list
     (* Itérateur sur les noeuds de la file  *)
 val iter_file: id list -> id list -> (string*string) graph -> id -> id list
 
-val reconstitution: id -> id list -> (string*string) graph -> id list -> id list
+val reconstitution: id -> id -> id list -> (string*string) graph -> id list -> id list
+val reconstitution_rev: id -> id -> id list -> (string*string) graph -> id list -> id list
 
 val chemin: (string * string) graph -> id -> id -> id list -> id list -> id list
+val chemin_rev: (string * string) graph -> id -> id -> id list -> id list -> id list
 
 
 
@@ -105,7 +107,7 @@ val recup_flot_succ : string->string->(string*string) graph -> string
 val recup_flot_pred_aux : string->(string*(string*string)) list -> string
 val recup_flot_pred : string->string->(string*string) graph -> string
 
-val liste_aug_flots : (string*string) graph -> string list-> string list
+val liste_aug_flots : (string*string) graph -> (string*string) graph -> string list-> string list
 
 val min : string->string->string
 val min_flot : string list -> string
@@ -122,3 +124,7 @@ val maj_inverse_dim: id -> id -> id -> (string*string) graph -> (string*string) 
 val maj_gr : (string*string) graph -> (string*string) graph -> string list ->string -> (string*string) graph
 
 val algo : (string*string) graph -> (string*string) graph -> id ->id -> (string*string) graph
+val algo1 : (string*string) graph -> (string*string) graph -> id ->id -> (string*string) graph
+val algo2 : (string*string) graph -> (string*string) graph -> id ->id -> (string*string) graph
+val maj_remove_aux : id -> (string*string) graph ->(string*(string*string)) list -> (string*(string*string)) list
+val maj_remove :(string*string) graph -> (string*string) graph ->(string*string) graph

@@ -185,7 +185,7 @@ let node_pred_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_
                                                 then (if (verif_flot (get_option (find_arc gr y x))) then true else false)
                                                     else false
 
-               (*Vérification si un node est un Succésseur de l'autre. On n'utilise pas cette fonction dans notre algo*)
+             (*Vérification si un node est un Succésseur de l'autre. On n'utilise pas cette fonction dans notre algo*)
 let node_succ_marque gr x chemin_en_cours y = if (not_appartient_list chemin_en_cours y) && ((find_arc gr x y) != None)
                                              then (if (verif_flot_pos (get_option (find_arc gr x y))) then true else false)
                                                 else false
@@ -202,10 +202,16 @@ let rec predecesseur_marque gr x chemin_en_cours =  function
                         Tant que l'on a pas atteint la source, on cherche le prédecesseur du dernier elm ajouté à la chaine en cours de construction
                         Renvoie un chemin qui est une liste des noeuds dont on doit augmenter le flot    ************)
 
-let rec reconstitution source acu gr marqueZ =
+let rec reconstitution_rev source sink acu gr marqueZ =
         if (first_elm acu)=source then acu
-            else (reconstitution source ((get_predecesseur (predecesseur_marque gr (first_elm acu) acu marqueZ ))::acu)
+            else (reconstitution_rev source sink ((get_predecesseur (predecesseur_marque gr (first_elm acu) acu (List.rev(remove_elm sink marqueZ))))::acu)
                               gr marqueZ )
+
+let rec reconstitution source sink acu gr marqueZ =
+        if (first_elm acu)=source then acu
+            else (reconstitution source sink ((get_predecesseur (predecesseur_marque gr (first_elm acu) acu ((remove_elm sink marqueZ))))::acu)
+                              gr marqueZ )
+
 
 
        (************ Etape 2: Itérateur sur une liste contenant dees Succésseurs pour vérifier chaque noeud
@@ -231,11 +237,16 @@ let rec iter_file fileZ marqueZ gr sink = match fileZ with
 
 let chemin gr source sink fileZ marqueZ =   (*OKKK*)
     let list_mark = iter_file [source] [source] gr sink in  (* Recoit la liste de tout les noeuds marqués entre la destination et la source*)
-        if list_mark!=[] then (reconstitution source [sink] gr (remove_elm sink list_mark)) (* Si list_mark est vide alors on ne peut pas faire de reconstitution comme il n'y a pas de chemin*)
+        if list_mark!=[] then (reconstitution source sink [sink] gr (remove_elm sink list_mark)) (* Si list_mark est vide alors on ne peut pas faire de reconstitution comme il n'y a pas de chemin*)
                             else []   (* Si le ft renvoie chemin, l'algo principal peut tester si chemin (...)!=[] comme condition d'arret*) (*On aurait pu utiliser des exceptions aussi*)
 
+let chemin_rev gr source sink fileZ marqueZ =   (*OKKK*)
+    let list_mark = iter_file [source] [source] gr sink in  (* Recoit la liste de tout les noeuds marqués entre la destination et la source*)
+        if list_mark!=[] then (reconstitution_rev source sink [sink] gr (remove_elm sink list_mark)) (* Si list_mark est vide alors on ne peut pas faire de reconstitution comme il n'y a pas de chemin*)
+                            else []   (* Si le ft renvoie chemin, l'algo principal peut tester si chemin (...)!=[] comme condition d'arret*) (*On aurait pu utiliser des exceptions aussi*)
 
 (****************************************************************************************************)
+(***                   Diminution d'un flot à partir d'une chaine                             *******)
 (****************************************************************************************************)
 
 (* recuperer le flot d'un arc (id1,id2) avec id2 succ de id1 *)
@@ -260,11 +271,13 @@ let rec recup_flot_pred id1 id2 = function
 
 (* liste des augmentations de flot possibles : parcourir la chaine ameliorante et regarder chaque element par rapport à celui d'après s'il est son succ ou son pred*)
 
-let liste_aug_flots gr chaine =
+let liste_aug_flots gr gr_initial chaine =
   let rec loop gr acu = function
     |[]->[]
     |id::[]-> acu
-    |id::rest -> if exists_elm (r_succ id gr) (next_elm chaine id) then loop gr ((recup_flot_succ id (next_elm chaine id) gr)::acu) rest else loop gr ((recup_flot_pred (next_elm chaine id) id gr)::acu) rest
+    |id::rest -> if exists_elm (r_succ id gr_initial) (next_elm chaine id)
+                    then loop gr ((recup_flot_succ id (next_elm chaine id) gr)::acu) rest
+                        else loop gr ((recup_flot_pred (next_elm chaine id) id gr)::acu) rest
   in
   loop gr [] chaine
 
@@ -281,7 +294,8 @@ let min_flot = function
 
 let rec aug_flot_succ_aux id2 min = function
   |[]->[]
-  |(ids,(f,c))::rest -> if (ids=id2) then (ids,(string_of_int(int_of_string f + int_of_string min),c))::rest else (ids,(f,c))::aug_flot_succ_aux id2 min rest
+  |(ids,(f,c))::rest -> if (ids=id2) then (ids,(string_of_int(int_of_string f + int_of_string min),c))::rest
+                            else (ids,(f,c))::aug_flot_succ_aux id2 min rest
 
 let rec aug_flot_succ id1 id2 min = function
   |[] -> []
@@ -304,8 +318,8 @@ let rec dim_flot_pred id1 id2 min = function
 (*****************)
 
 let maj_inverse_aug id1 id2 min gr gr_initial =
-    (*if ((find_arc gr_initial id2 id1) = None)  *)  (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
-if (true)
+    if ((find_arc gr_initial id2 id1) = None)    (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
+(*if (true)*)
         then (if ((find_arc gr id2 id1) = None)
                   then (add_arc gr id2 id1 ((string_of_int(int_of_string (get_capa (get_option (find_arc gr id1 id2))) - int_of_string (get_flot (get_option (find_arc gr id1 id2))))),(get_capa (get_option (find_arc gr id1 id2)))))
                    else (dim_flot_pred id2 id1 min gr))
@@ -314,48 +328,68 @@ if (true)
 
 
 let maj_inverse_dim id1 id2 min gr gr_initial =
-if(true)
-    (*if(((find_arc gr_initial id2 id1) = None))    *)   (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
+(*if(true) *)
+    if(((find_arc gr_initial id2 id1) = None))       (* L'arc de id1 à 2 n'a pas d'arc retour dans le graf inital  *)
             then (if ((find_arc gr id2 id1) = None)
                       then (add_arc gr id2 id1 ((string_of_int(int_of_string (get_capa (get_option (find_arc gr id1 id2))) -
                                                                int_of_string (get_flot (get_option (find_arc gr id1 id2))))),
                                                 (get_capa (get_option (find_arc gr id1 id2)))))
-                       else (dim_flot_pred id2 id1 min gr))
+                       else (aug_flot_succ id2 id1 min gr))
             (*  else (aug_flot_succ id2 id1 min gr) *)
             else gr
 
 (*****************)
 
         (* mettre à jour le graphe : parcourir la chaine ameliorante, rechercher les arcs dans le graph et modifier le flot avec les fcts aug_flot_succ et dim_flot_pred *)
-
+(*
 let rec maj_gr gr gr_initial chaine min = match chaine with
   |[]->gr
   |id::[]->gr
   |id::rest -> if exists_elm (r_succ id gr_initial) (next_elm chaine id)
                     then  (maj_gr (aug_flot_succ id (next_elm chaine id) min gr) gr_initial rest min)
                     else  (maj_gr (dim_flot_pred (next_elm chaine id) id min gr) gr_initial rest min)
-
+*)
 (* Version 2 : en créant/modifiant des arcs inverses à chaque modification du flot d'un arc donné *)
-(*
+
 let rec maj_gr gr gr_initial chaine min = match chaine with
   |[]->gr
   |id::[]->gr
   |id::rest -> if exists_elm (r_succ id gr_initial) (next_elm chaine id)
                     then  (maj_gr (maj_inverse_aug id (next_elm chaine id) min (aug_flot_succ id (next_elm chaine id) min gr) gr_initial) gr_initial rest min)
-                    else  (maj_gr (maj_inverse_dim id (next_elm chaine id) min (dim_flot_pred (next_elm chaine id) id min gr) gr_initial) gr_initial rest min)
-*)
-(*
-(dim_flot_pred (next_elm chaine id) id min gr)
-(maj_inverse_aug id (next_elm chaine id) min grrrr gr_initial)
-(maj_inverse_dim id (next_elm chaine id) min grrrrr gr_initial)*)
+                    else  (maj_gr (maj_inverse_dim (next_elm chaine id) id min (dim_flot_pred (next_elm chaine id) id min gr) gr_initial) gr_initial rest min)
+
 
 (* l'algorithme final : tant qu'il y a une chaine ameliorante on calcule le min (min_flot) et on met à jour le graphe (maj_gr)*)
 
 let rec algo gr gr_initial source sink  =
-  let chaine = chemin gr source sink [source] [source] in
+  let chaine = chemin_rev gr source sink [source] [source] in
    if chaine = [] then gr else
-     let min = min_flot(liste_aug_flots gr chaine) in
+     let min = min_flot(liste_aug_flots gr gr_initial chaine) in
      algo (maj_gr gr gr_initial chaine min) gr_initial source sink
+
+
+
+let rec maj_remove_aux id gr = function
+  |(x,y)::rest -> (x,get_option(find_arc gr id x))::(maj_remove_aux id gr rest)
+  |[]->[]
+
+let rec maj_remove gr gr_initial  = List.map (fun (id,out) -> (id, maj_remove_aux id gr out)) gr_initial
+
+
+
+
+(* Vérifier l'usage des arcs inverses *)
+let rec algo2 gr gr_initial source sink  =
+  let chaine = chemin_rev gr source sink [source] [source] in
+     let min = min_flot(liste_aug_flots gr gr_initial chaine) in
+        maj_gr gr gr_initial chaine min
+
+
+let rec algo1 gr gr_initial source sink  =
+  let chaine = chemin gr source sink [source] [source] in
+     let min = min_flot(liste_aug_flots gr gr_initial chaine) in
+       maj_gr gr gr_initial chaine min
+
 
 
 (*------------*)
