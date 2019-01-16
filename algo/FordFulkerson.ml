@@ -35,10 +35,11 @@ let () =
   (* Afficher un chemin  (id list), pour vérifier si notre chaine était optimale*)
   let () = Gfile.write_file_chemin outfile test1 graph _source _sink in *)
 
-
+(*Afficher graphe en dot format*)
   let () = Gfile.export outfile graph2 in
 
 
- (*let () = Gfile.write_file outfile graph in  (*afficher graphe en dot format*)*)
+(*Afficher en type graph comme en entrée *)
+ (*let () = Gfile.write_file outfile graph in  *)
 
   ()
